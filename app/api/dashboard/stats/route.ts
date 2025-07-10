@@ -17,9 +17,12 @@ export async function GET() {
 
     // Get user's groups
     const groups = await Group.find({
-      'members.user': session.user.id,
-      isActive: true,
-    });
+  isActive: true,
+  $or: [
+    { createdBy: session.user.id },
+    { 'members.user': session.user.id },
+  ],
+});
 
     const groupIds = groups.map(group => group._id);
 

@@ -31,7 +31,13 @@ interface Group {
   _id: string;
   name: string;
   description?: string;
-  members: { user: { name: string; email: string } }[];
+  members: {
+    user: {
+      amount: any;
+      name: string;
+      email: string;
+    };
+  }[];
   totalExpenses: number;
   createdAt: string;
 }
@@ -164,7 +170,100 @@ export default function Dashboard() {
           </Button>
         </div>
 
-        {groups.length === 0 ? (
+        {!isLoading && groups.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {groups.map((group, index) => {
+              const isLatest = index === 0;
+
+              return (
+                <Card
+                  key={group._id}
+                  className={`relative w-full min-h-[220px] p-6 border border-gray-200 dark:border-gray-700 shadow-lg hover:shadow-xl transition-shadow duration-300 rounded-xl flex flex-col items-center text-center ${
+                    isLatest ? "ring-2 ring-purple-500" : ""
+                  }`}
+                >
+                  {/* New Group Badge */}
+                  {isLatest && (
+                    <span className="absolute top-4 left-4 bg-purple-600 text-white text-xs px-3 py-1 rounded-full z-10">
+                      New group
+                    </span>
+                  )}
+
+                  <CardHeader className="items-center p-0">
+                    <CardTitle className="text-xl sm:text-2xl mb-1">
+                      {group.name}
+                    </CardTitle>
+                    <CardDescription className="text-base text-muted-foreground">
+                      {group.description || "No description"}
+                    </CardDescription>
+                  </CardHeader>
+
+                  <CardContent className="space-y-2 pt-4">
+                    <div className="text-base font-medium">
+                      Members: {group.members.length}
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      {group.members.length > 0 ? (
+                        group.members.map((member, idx) => (
+                          <div key={idx} className="flex justify-center gap-2">
+                            {member.user ? (
+                              <>
+                                <span className="font-semibold text-gray-700 dark:text-gray-200">
+                                  {member.user.name}:
+                                </span>
+
+                                <span className="text-gray-500 dark:text-gray-400">
+                                  Paid: ₹{member.user?.amount?.toFixed(2) || 0}
+                                </span>
+                              </>
+                            ) : (
+                              <span className="text-gray-400 italic">
+                                Member info unavailable
+                              </span>
+                            )}
+                          </div>
+                        ))
+                      ) : (
+                        <div className="text-gray-500 italic text-sm text-center">
+                          No members added yet.
+                        </div>
+                      )}
+                    </div>
+                    <div className="text-base font-medium">
+                      Total Expenses: INR {group.totalExpenses}
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      Created: {new Date(group.createdAt).toLocaleDateString()}
+                    </div>
+
+                    <div className="flex flex-col sm:flex-row gap-3 mt-4 w-full justify-center">
+                      <Button
+                        className="w-full"
+                        variant="default"
+                        onClick={() => {
+                          setSelectedGroupId(group._id);
+                          setShowAddExpense(true);
+                        }}
+                      >
+                        Add Expenses
+                      </Button>
+                      <Button
+                        className="w-full"
+                        variant="outline"
+                        onClick={() => {
+                          setSelectedGroupId(group._id);
+                          setShowAddMember(true);
+                        }}
+                      >
+                        Add Members
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+        ) : !isLoading && groups.length === 0 ? (
           <Card className="border-none shadow-lg">
             <CardContent className="flex flex-col items-center justify-center py-16">
               <Users className="h-16 w-16 text-muted-foreground mb-4" />
@@ -179,108 +278,7 @@ export default function Dashboard() {
               </Button>
             </CardContent>
           </Card>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {groups.map((group, index) => {
-              const isLatest = index === 0;
-
-              return (
-                <Card
-                  key={group._id}
-                  className={`relative w-full min-h-[220px] p-6 border border-gray-200 dark:border-gray-700 shadow-lg hover:shadow-xl transition-shadow duration-300 rounded-xl flex flex-col items-center text-center ${
-                    isLatest ? "ring-2 ring-purple-500" : ""
-                  }`}
-                >
-                  {/* New Group Badge (Top-Left Corner) */}
-                  {isLatest && (
-                    <span className="absolute top-4 left-4 bg-purple-600 text-white text-xs px-3 py-1 rounded-full z-10">
-                      New group
-                    </span>
-                  )}
-
-                  {/* Group Name */}
-                  <CardHeader className="items-center p-0">
-                    <CardTitle className="text-xl sm:text-2xl mb-1">
-                      {group.name}
-                    </CardTitle>
-                    <CardDescription className="text-base text-muted-foreground">
-                      {group.description || "No description"}
-                    </CardDescription>
-                  </CardHeader>
-
-                  <CardContent className="space-y-2 pt-4">
-                    <div className="text-base font-medium">
-                      Members: {group.members.length}
-                    </div>
-
-                    {/* Member List with Share Amount */}
-                    <div className="text-sm text-muted-foreground">
-                      {group.members.map((member, idx) => (
-                        <div key={idx} className="flex justify-center gap-2">
-                          <span className="font-semibold text-gray-700 dark:text-gray-200">
-                            {member.user.name + " :"}
-                          </span>
-                          <span className="text-gray-500 dark:text-gray-400">
-                            {/* (INR
-                            {(
-                              group.totalExpenses / group.members.length
-                            ).toFixed(2)}
-                            ) */}
-                            {"INR " +
-                              (
-                                group.totalExpenses / group.members.length
-                              ).toFixed(2)}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-
-                    <div className="text-base font-medium">
-                      Total Expenses: {"INR " + group.totalExpenses}
-                    </div>
-
-                    <div className="text-sm text-muted-foreground">
-                      Created: {new Date(group.createdAt).toLocaleDateString()}
-                    </div>
-
-                    <div className="flex flex-col sm:flex-row gap-3 mt-4 w-full justify-center">
-                      <Link
-                        href={`/group/${group._id}`}
-                        className="w-full sm:w-auto"
-                      >
-                        <Button
-                          className="w-full"
-                          variant="default"
-                          onClick={() => {
-                            setSelectedGroupId(group._id);
-                            setShowAddExpense(true);
-                          }}
-                        >
-                          Add Expenses
-                        </Button>
-                      </Link>
-                      <Link
-                        href={`/group/${group._id}`}
-                        className="w-full sm:w-auto"
-                      >
-                        <Button
-                          className="w-full"
-                          variant="outline"
-                          onClick={() => {
-                            setSelectedGroupId(group._id);
-                            setShowAddMember(true);
-                          }}
-                        >
-                          Add Members
-                        </Button>
-                      </Link>
-                    </div>
-                  </CardContent>
-                </Card>
-              );
-            })}
-          </div>
-        )}
+        ) : null}
 
         <CreateGroupDialog
           open={showCreateGroup}
@@ -288,19 +286,29 @@ export default function Dashboard() {
           onGroupCreated={fetchDashboardData}
         />
 
-        <AddMemberDialog
-          open={showAddMember}
-          onOpenChange={setShowAddMember}
-          groupId={selectedGroupId}
-          onMemberAdded={fetchDashboardData}
-        />
+        {selectedGroupId && (
+          <>
+            <AddMemberDialog
+              open={showAddMember}
+              onOpenChange={(open) => {
+                setShowAddMember(open);
+                if (!open) setSelectedGroupId(null); // clear on close
+              }}
+              groupId={selectedGroupId}
+              onMemberAdded={fetchDashboardData}
+            />
 
-        <AddExpenseDialog
-          open={showAddExpense}
-          onOpenChange={setShowAddExpense}
-          groupId={selectedGroupId}
-          onExpenseAdded={fetchDashboardData}
-        />
+            <AddExpenseDialog
+              open={showAddExpense}
+              onOpenChange={(open) => {
+                setShowAddExpense(open);
+                if (!open) setSelectedGroupId(null); // clear on close
+              }}
+              groupId={selectedGroupId}
+              onExpenseAdded={fetchDashboardData}
+            />
+          </>
+        )}
       </div>
     </div>
   );

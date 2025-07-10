@@ -1,14 +1,16 @@
 import mongoose, { Document, Schema } from 'mongoose';
 
+export interface IGroupMember {
+  user: mongoose.Types.ObjectId;
+  role: 'admin' | 'member';
+  joinedAt: Date;
+}
+
 export interface IGroup extends Document {
   name: string;
   description?: string;
   createdBy: mongoose.Types.ObjectId;
-  members: {
-    user: mongoose.Types.ObjectId;
-    role: 'admin' | 'member';
-    joinedAt: Date;
-  }[];
+  members: IGroupMember[];
   expenses: mongoose.Types.ObjectId[];
   totalExpenses: number;
   isActive: boolean;
@@ -16,7 +18,7 @@ export interface IGroup extends Document {
   updatedAt: Date;
 }
 
-const GroupSchema = new Schema({
+const GroupSchema = new Schema<IGroup>({
   name: {
     type: String,
     required: true,
@@ -31,26 +33,30 @@ const GroupSchema = new Schema({
     ref: 'User',
     required: true,
   },
-  members: [{
-    user: {
+  members: [
+    {
+      user: {
+        type: Schema.Types.ObjectId,
+        ref: 'Member', // ✅ Make sure it points to 'Member'
+        required: true,
+      },
+      role: {
+        type: String,
+        enum: ['admin', 'member'],
+        default: 'member',
+      },
+      joinedAt: {
+        type: Date,
+        default: Date.now,
+      },
+    },
+  ],
+  expenses: [
+    {
       type: Schema.Types.ObjectId,
-      ref: 'User',
-      required: true,
+      ref: 'Expense',
     },
-    role: {
-      type: String,
-      enum: ['admin', 'member'],
-      default: 'member',
-    },
-    joinedAt: {
-      type: Date,
-      default: Date.now,
-    },
-  }],
-  expenses: [{
-    type: Schema.Types.ObjectId,
-    ref: 'Expense',
-  }],
+  ],
   totalExpenses: {
     type: Number,
     default: 0,

@@ -29,25 +29,27 @@ export default function AddExpenseDialog({
   };
 
   const handleSubmit = async () => {
-    if (!form.paidBy || !form.amount) {
-      toast.error("Name and amount are required");
-      return;
-    }
+  if (!form.paidBy || !form.amount) {
+    toast.error("Paid by and amount are required");
+    return;
+  }
 
-    const res = await fetch(`/api/groups/${groupId}/expenses`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form),
-    });
+  const res = await fetch(`/api/groups/${groupId}/expenses`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(form),
+  });
 
-    if (res.ok) {
-      toast.success("Expense added!");
-      onExpenseAdded();
-      onOpenChange(false);
-    } else {
-      toast.error("Failed to add expense.");
-    }
-  };
+  const data = await res.json();
+
+  if (res.ok) {
+    toast.success("Expense added!");
+    onExpenseAdded();
+    onOpenChange(false);
+  } else {
+    toast.error(data.message || "Failed to add expense.");
+  }
+};
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

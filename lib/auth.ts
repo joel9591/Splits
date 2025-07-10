@@ -1,97 +1,79 @@
-import NextAuth, { AuthOptions } from 'next-auth';
-import GoogleProvider from 'next-auth/providers/google';
-import CredentialsProvider from 'next-auth/providers/credentials';
-import bcrypt from 'bcryptjs';
-import connectDB from './mongodb';
-import User from '@/models/User';
+import { AuthOptions } from "next-auth";
+import GoogleProvider from "next-auth/providers/google";
+import CredentialsProvider from "next-auth/providers/credentials";
+import dbConnect from "@/lib/mongodb";
+import User from "@/models/User";
+import bcrypt from "bcryptjs";
 
 export const authOptions: AuthOptions = {
   providers: [
+    // Google OAuth Provider
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     }),
+
+    // Credentials Provider (Email + Password)
     CredentialsProvider({
-      name: 'credentials',
+      name: "Credentials",
       credentials: {
-        email: { label: 'Email', type: 'email' },
-        password: { label: 'Password', type: 'password' }
+        email: { label: "Email", type: "email" },
+        password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) {
-          return null;
-        }
+        await dbConnect();
+        const user = await User.findOne({ email: credentials?.email });
 
-        try {
-          await connectDB();
-          const user = await User.findOne({ email: credentials.email });
+        if (!user) throw new Error("No user found");
 
-          if (!user || !user.password) {
-            return null;
-          }
+        const isPasswordCorrect = await bcrypt.compare(
+          credentials!.password,
+          user.password
+        );
 
-          const isPasswordValid = await bcrypt.compare(credentials.password, user.password);
+        if (!isPasswordCorrect) throw new Error("Invalid credentials");
 
-          if (!isPasswordValid) {
-            return null;
-          }
-
-          return {
-            id: user._id.toString(),
-            email: user.email,
-            name: user.name,
-            image: user.image,
-          };
-        } catch (error) {
-          console.error('Auth error:', error);
-          return null;
-        }
-      }
-    })
+        return {
+          id: user._id.toString(), // ✅ Use MongoDB ObjectId
+          name: user.name,
+          email: user.email,
+        };
+      },
+    }),
   ],
+
   callbacks: {
-    async signIn({ user, account, profile }) {
-      if (account?.provider === 'google') {
-        try {
-          await connectDB();
-          let existingUser = await User.findOne({ email: user.email });
-
-          if (!existingUser) {
-            existingUser = await User.create({
-              name: user.name,
-              email: user.email,
-              image: user.image,
-              provider: 'google',
-            });
-          }
-
-          user.id = existingUser._id.toString();
-          return true;
-        } catch (error) {
-          console.error('SignIn error:', error);
-          return false;
-        }
-      }
-      return true;
-    },
+    // Attach MongoDB _id to JWT token
     async jwt({ token, user }) {
       if (user) {
-        token.id = user.id;
+        token.id = user.id; // Already correct for both Google & Credentials
       }
       return token;
     },
+
+    // Attach MongoDB _id to session from token or DB
     async session({ session, token }) {
-      session.user.id = token.id as string;
+      await dbConnect();
+
+      if (session?.user?.email) {
+        // Always fetch user from DB to get Mongo ObjectId
+        const userInDB = await User.findOne({ email: session.user.email });
+        if (userInDB) {
+          session.user.id = userInDB._id.toString(); // ✅ Force correct ObjectId
+        }
+      }
+
       return session;
     },
   },
-  pages: {
-    signIn: '/auth/signin',
-    signUp: '/auth/signup',
-  },
-  session: {
-    strategy: 'jwt',
-  },
-};
 
-export default NextAuth(authOptions);
+  session: {
+    strategy: "jwt", // ✔ good for scalability
+  },
+
+  pages: {
+    signIn: "/login",
+  },
+
+  secret: process.env.NEXTAUTH_SECRET,
+};

@@ -4,6 +4,7 @@ import { authOptions } from '@/lib/auth';
 import connectDB from '@/lib/mongodb';
 import Group from '@/models/Group';
 import User from '@/models/User';
+import Member from '@/models/Member'; // ✅ Required for populating
 
 export async function GET() {
   try {
@@ -15,10 +16,17 @@ export async function GET() {
     await connectDB();
 
     const groups = await Group.find({
-      'members.user': session.user.id,
       isActive: true,
+      $or: [
+        { createdBy: session.user.id },
+        { 'members.user': session.user.id },
+      ],
     })
-      .populate('members.user', 'name email')
+      .populate({
+        path: 'members.user',
+        model: 'Member',
+        select: 'name email amount', // ✅ Include 'amount' field for frontend
+      })
       .sort({ createdAt: -1 });
 
     return NextResponse.json(groups);
@@ -28,37 +36,35 @@ export async function GET() {
   }
 }
 
-export async function POST(request: NextRequest) {
+
+
+export async function POST(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
       return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
     }
 
-    const { name, description } = await request.json();
-
-    if (!name) {
+    const { name, description } = await req.json();
+    if (!name || typeof name !== 'string') {
       return NextResponse.json({ message: 'Group name is required' }, { status: 400 });
     }
 
     await connectDB();
 
-    const group = await Group.create({
+    const newGroup = await Group.create({
       name,
       description,
       createdBy: session.user.id,
-      members: [{
-        user: session.user.id,
-        role: 'admin',
-      }],
+      members: [], // no members initially
     });
 
-    // Add group to user's groups array
+    // ✅ Add this group to the User model
     await User.findByIdAndUpdate(session.user.id, {
-      $push: { groups: group._id },
+      $push: { groups: newGroup._id },
     });
 
-    return NextResponse.json(group, { status: 201 });
+    return NextResponse.json(newGroup, { status: 201 });
   } catch (error) {
     console.error('Create group error:', error);
     return NextResponse.json({ message: 'Internal server error' }, { status: 500 });

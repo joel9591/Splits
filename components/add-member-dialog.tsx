@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -6,7 +9,6 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
 import { toast } from "sonner";
 
 interface AddMemberDialogProps {
@@ -22,30 +24,47 @@ export default function AddMemberDialog({
   groupId,
   onMemberAdded,
 }: AddMemberDialogProps) {
-  const [form, setForm] = useState({ name: "", email: "", phone: "", upi: "" });
+  const [form, setForm] = useState({
+    name: "",
+    phone: "",
+    email: "",
+    upiId: "",
+  });
+
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = async () => {
-    if (!form.name.trim()) {
-      toast.error("Name is required");
+    if (!form.name.trim() || !form.phone.trim()) {
+      toast.error("Name and phone number are required.");
       return;
     }
 
-    const res = await fetch(`/api/groups/${groupId}/members`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form),
-    });
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/groups/${groupId}/members`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
 
-    if (res.ok) {
-      toast.success("Member added successfully!");
-      onMemberAdded();
-      onOpenChange(false);
-    } else {
-      toast.error("Failed to add member.");
+      const data = await res.json();
+
+      if (res.ok) {
+        toast.success("Member added successfully!");
+        onMemberAdded();
+        onOpenChange(false);
+        setForm({ name: "", phone: "", email: "", upiId: "" });
+      } else {
+        toast.error(data.message || "Failed to add member.");
+      }
+    } catch (error) {
+      toast.error("Something went wrong.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -55,12 +74,38 @@ export default function AddMemberDialog({
         <DialogHeader>
           <DialogTitle>Add Member</DialogTitle>
         </DialogHeader>
+
         <div className="space-y-3">
-          <Input placeholder="Name *" name="name" onChange={handleChange} value={form.name} />
-          <Input placeholder="Email" name="email" onChange={handleChange} value={form.email} />
-          <Input placeholder="Phone Number" name="phone" onChange={handleChange} value={form.phone} />
-          <Input placeholder="UPI ID" name="upi" onChange={handleChange} value={form.upi} />
-          <Button onClick={handleSubmit}>Add</Button>
+          <Input
+            placeholder="Name"
+            name="name"
+            value={form.name}
+            onChange={handleChange}
+          />
+          <Input
+            placeholder="Phone Number"
+            name="phone"
+            type="tel"
+            value={form.phone}
+            onChange={handleChange}
+          />
+          <Input
+            placeholder="Email (optional)"
+            name="email"
+            type="email"
+            value={form.email}
+            onChange={handleChange}
+          />
+          <Input
+            placeholder="UPI ID (optional)"
+            name="upiId"
+            value={form.upiId}
+            onChange={handleChange}
+          />
+
+          <Button onClick={handleSubmit} disabled={loading}>
+            {loading ? "Adding Member..." : "Add Member"}
+          </Button>
         </div>
       </DialogContent>
     </Dialog>
