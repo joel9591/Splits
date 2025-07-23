@@ -78,10 +78,17 @@ const config: Config = {
             height: '0',
           },
         },
+        bounceLetter: {
+          '0%, 100%': { transform: 'translateY(0)' },
+          '50%': { transform: 'translateY(-10px)' },
+        },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
+        'spin-fast': 'spin 0.8s linear infinite',
+        'reverse-spin': 'spin 1.2s linear infinite reverse',
+        'bounce-letter': 'bounceLetter 1.5s infinite ease-in-out',
       },
     },
   },

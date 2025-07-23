@@ -30,7 +30,7 @@ const ExpenseSchema = new Schema<IExpense>({
   },
   paidBy: {
     type: Schema.Types.ObjectId,
-    ref: 'Member',
+    ref: 'User',
     required: true,
   },
   group: {
@@ -47,7 +47,7 @@ const ExpenseSchema = new Schema<IExpense>({
     {
       user: {
         type: Schema.Types.ObjectId,
-        ref: 'Member', // ✅ Must match model name
+        ref: 'User',
         required: true,
       },
       amount: {

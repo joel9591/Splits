@@ -17,43 +17,72 @@ export async function GET() {
 
     // Get user's groups
     const groups = await Group.find({
-  isActive: true,
-  $or: [
-    { createdBy: session.user.id },
-    { 'members.user': session.user.id },
-  ],
-});
+      isActive: true,
+      $or: [
+        { createdBy: session.user.id },
+        { 'members.user': session.user.id },
+      ],
+    }).populate({
+      path: 'members.user',
+      model: 'User',
+      select: '_id name email'
+    });
 
     const groupIds = groups.map(group => group._id);
 
     // Get expenses for all user's groups
     const expenses = await Expense.find({
       group: { $in: groupIds },
-    }).populate('splitDetails.user');
+    }).populate({
+      path: 'paidBy',
+      model: 'User',
+      select: '_id name email image'
+    });
 
     // Calculate stats
     const totalGroups = groups.length;
-    const totalExpenses = expenses.length;
-
-    // Calculate balances
-    const balances = calculateBalances(expenses, session.user.id);
     
-    let totalOwed = 0;
-    let totalOwing = 0;
-
-    Object.values(balances).forEach(balance => {
-      if (balance > 0) {
-        totalOwed += balance;
-      } else if (balance < 0) {
-        totalOwing += Math.abs(balance);
+    // Calculate total expenses amount (not just count)
+    let totalExpensesAmount = 0;
+    groups.forEach(group => {
+      totalExpensesAmount += group.totalExpenses || 0;
+    });
+    
+    // Calculate user's personal expenses and amounts owed/owing
+    let userPaidTotal = 0;
+    let userOwesTotal = 0;
+    
+    // Loop through each group
+    groups.forEach(group => {
+      // Find the current user in the group members
+      const userMember = group.members.find(
+        (m: any) => m.user && m.user._id && m.user._id.toString() === session.user.id
+      );
+      
+      if (userMember) {
+        // If user has paid more than their fair share, others owe them
+        const fairShare = group.totalExpenses / group.members.length;
+        const userAmount = userMember.amount || 0;
+        
+        if (userAmount > fairShare) {
+          userPaidTotal += (userAmount - fairShare);
+        } else if (userAmount < fairShare) {
+          userOwesTotal += (fairShare - userAmount);
+        }
       }
     });
+    
+    // Round to 2 decimal places for currency
+    totalExpensesAmount = parseFloat(totalExpensesAmount.toFixed(2));
+    userPaidTotal = parseFloat(userPaidTotal.toFixed(2));
+    userOwesTotal = parseFloat(userOwesTotal.toFixed(2));
 
     return NextResponse.json({
       totalGroups,
-      totalExpenses,
-      totalOwed,
-      totalOwing,
+      totalExpenses: totalExpensesAmount,
+      totalOwed: userPaidTotal,
+      totalOwing: userOwesTotal,
+      expenseCount: expenses.length // Also include the count of expenses
     });
   } catch (error) {
     console.error('Dashboard stats error:', error);
