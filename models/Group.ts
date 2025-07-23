@@ -1,24 +1,7 @@
-import mongoose, { Document, Schema } from 'mongoose';
+// models/Group.ts
+import mongoose from 'mongoose';
 
-export interface IGroupMember {
-  user: mongoose.Types.ObjectId;
-  role: 'admin' | 'member';
-  joinedAt: Date;
-}
-
-export interface IGroup extends Document {
-  name: string;
-  description?: string;
-  createdBy: mongoose.Types.ObjectId;
-  members: IGroupMember[];
-  expenses: mongoose.Types.ObjectId[];
-  totalExpenses: number;
-  isActive: boolean;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-const GroupSchema = new Schema<IGroup>({
+const GroupSchema = new mongoose.Schema({
   name: {
     type: String,
     required: true,
@@ -29,34 +12,29 @@ const GroupSchema = new Schema<IGroup>({
     trim: true,
   },
   createdBy: {
-    type: Schema.Types.ObjectId,
+    type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
     required: true,
   },
-  members: [
-    {
-      user: {
-        type: Schema.Types.ObjectId,
-        ref: 'Member', // ✅ Make sure it points to 'Member'
-        required: true,
-      },
-      role: {
-        type: String,
-        enum: ['admin', 'member'],
-        default: 'member',
-      },
-      joinedAt: {
-        type: Date,
-        default: Date.now,
-      },
+  members: [{
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      required: true,
     },
-  ],
-  expenses: [
-    {
-      type: Schema.Types.ObjectId,
-      ref: 'Expense',
+    amount: {
+      type: Number,
+      default: 0,
     },
-  ],
+    joinedAt: {
+      type: Date,
+      default: Date.now,
+    },
+  }],
+  expenses: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Expense',
+  }],
   totalExpenses: {
     type: Number,
     default: 0,
@@ -69,4 +47,4 @@ const GroupSchema = new Schema<IGroup>({
   timestamps: true,
 });
 
-export default mongoose.models.Group || mongoose.model<IGroup>('Group', GroupSchema);
+export default mongoose.models.Group || mongoose.model('Group', GroupSchema);

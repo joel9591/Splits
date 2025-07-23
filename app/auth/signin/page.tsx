@@ -48,9 +48,22 @@ export default function SignIn() {
   const handleGoogleSignIn = async () => {
     setIsLoading(true);
     try {
-      await signIn('google', { callbackUrl: '/dashboard' });
+      // The callbackUrl is where the user will be redirected after successful authentication
+      // The redirect: true ensures the browser handles the redirect
+      const result = await signIn('google', { 
+        callbackUrl: '/dashboard',
+        redirect: true
+      });
+      
+      // Note: With redirect: true, the code below won't execute unless there's an error
+      // as the browser will be redirected to the callbackUrl
+      if (result?.error) {
+        toast.error(`Google sign-in failed: ${result.error}`);
+        setIsLoading(false);
+      }
     } catch (error) {
-      toast.error('Failed to sign in with Google');
+      console.error('Google sign-in error:', error);
+      toast.error('Failed to sign in with Google. Please try again.');
       setIsLoading(false);
     }
   };

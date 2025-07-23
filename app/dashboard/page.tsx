@@ -10,6 +10,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Plus, Users, Receipt, TrendingUp, DollarSign } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
 import LoadingSpinner from "@/components/loading-spinner";
@@ -25,6 +26,8 @@ interface DashboardStats {
   totalExpenses: number;
   totalOwed: number;
   totalOwing: number;
+  expenseCount: number;
+  recentExpenses?: Expense[];
 }
 
 interface Group {
@@ -33,12 +36,31 @@ interface Group {
   description?: string;
   members: {
     user: {
-      amount: any;
+      _id: string;
       name: string;
       email: string;
+      image?: string;
     };
+    amount: number;
+    joinedAt: string;
   }[];
+  memberCount?: number;
   totalExpenses: number;
+  createdAt: string;
+  expenses?: Expense[];
+}
+
+interface Expense {
+  _id: string;
+  description: string;
+  amount: number;
+  paidBy: {
+    _id: string;
+    name: string;
+    email: string;
+    image?: string;
+  };
+  group: string;
   createdAt: string;
 }
 
@@ -77,9 +99,36 @@ export default function Dashboard() {
 
       if (groupsResponse.ok) {
         const groupsData = await groupsResponse.json();
-        setGroups(groupsData);
+        
+        // For each group, fetch the latest expenses
+        const groupsWithExpenses = await Promise.all(
+          groupsData.map(async (group: Group) => {
+            try {
+              const expensesResponse = await fetch(`/api/groups/${group._id}/expenses`);
+              if (expensesResponse.ok) {
+                const expensesData = await expensesResponse.json();
+                // Add the latest 3 expenses to each group
+                return {
+                  ...group,
+                  expenses: expensesData.slice(0, 3)
+                };
+              }
+              return group;
+            } catch (error) {
+              console.error(`Error fetching expenses for group ${group._id}:`, error);
+              return group;
+            }
+          })
+        );
+        
+        setGroups(groupsWithExpenses);
+      } else {
+        const errorData = await groupsResponse.json();
+        console.error("Groups API error:", errorData);
+        toast.error("Failed to load groups");
       }
     } catch (error) {
+      console.error("Dashboard fetch error:", error);
       toast.error("Failed to load dashboard data");
     } finally {
       setIsLoading(false);
@@ -176,90 +225,140 @@ export default function Dashboard() {
               const isLatest = index === 0;
 
               return (
-                <Card
+                <Link 
+                  href={`/group/${group._id}`} 
                   key={group._id}
-                  className={`relative w-full min-h-[220px] p-6 border border-gray-200 dark:border-gray-700 shadow-lg hover:shadow-xl transition-shadow duration-300 rounded-xl flex flex-col items-center text-center ${
-                    isLatest ? "ring-2 ring-purple-500" : ""
-                  }`}
+                  className="block transition-transform hover:scale-[1.01]"
                 >
-                  {/* New Group Badge */}
-                  {isLatest && (
-                    <span className="absolute top-4 left-4 bg-purple-600 text-white text-xs px-3 py-1 rounded-full z-10">
-                      New group
-                    </span>
-                  )}
+                  <Card
+                    className={`relative w-full min-h-[220px] p-6 border border-gray-200 dark:border-gray-700 shadow-lg hover:shadow-xl transition-shadow duration-300 rounded-xl flex flex-col items-center text-center ${
+                      isLatest ? "ring-2 ring-purple-500" : ""
+                    }`}
+                  >
+                    {/* New Group Badge */}
+                    {isLatest && (
+                      <span className="absolute top-4 left-4 bg-purple-600 text-white text-xs px-3 py-1 rounded-full z-10">
+                        New group
+                      </span>
+                    )}
 
-                  <CardHeader className="items-center p-0">
-                    <CardTitle className="text-xl sm:text-2xl mb-1">
-                      {group.name}
-                    </CardTitle>
-                    <CardDescription className="text-base text-muted-foreground">
-                      {group.description || "No description"}
-                    </CardDescription>
-                  </CardHeader>
+                    <CardHeader className="items-center p-0">
+                      <CardTitle className="text-xl sm:text-2xl mb-1">
+                        {group.name}
+                      </CardTitle>
+                      <CardDescription className="text-base text-muted-foreground">
+                        {group.description || "No description"}
+                      </CardDescription>
+                    </CardHeader>
 
-                  <CardContent className="space-y-2 pt-4">
-                    <div className="text-base font-medium">
-                      Members: {group.members.length}
-                    </div>
-                    <div className="text-sm text-muted-foreground">
-                      {group.members.length > 0 ? (
-                        group.members.map((member, idx) => (
-                          <div key={idx} className="flex justify-center gap-2">
-                            {member.user ? (
-                              <>
-                                <span className="font-semibold text-gray-700 dark:text-gray-200">
-                                  {member.user.name}:
-                                </span>
-
-                                <span className="text-gray-500 dark:text-gray-400">
-                                  Paid: ₹{member.user?.amount?.toFixed(2) || 0}
-                                </span>
-                              </>
-                            ) : (
-                              <span className="text-gray-400 italic">
-                                Member info unavailable
-                              </span>
-                            )}
+                    <CardContent className="space-y-2 pt-4">
+                      <div className="text-base font-medium">
+                        Members: {group.memberCount || group.members.length}
+                      </div>
+                      <div className="text-sm text-muted-foreground">
+                        {group.members && group.members.length > 0 ? (
+                          group.members.map((member, idx) => {
+                            return (
+                              <div
+                                key={idx}
+                                className="flex justify-between items-center py-1 border-b border-gray-100 dark:border-gray-800 last:border-0"
+                              >
+                                {member.user && member.user.name ? (
+                                  <>
+                                    <div className="flex items-center gap-2">
+                                      <Avatar className="h-6 w-6">
+                                        <AvatarImage src={member.user.image} />
+                                        <AvatarFallback>{member.user.name.charAt(0)}</AvatarFallback>
+                                      </Avatar>
+                                      <span className="font-medium text-gray-700 dark:text-gray-200">
+                                        {member.user.name}
+                                      </span>
+                                    </div>
+                                    <span className="text-gray-500 dark:text-gray-400 font-medium">
+                                      ₹{(member.amount || 0).toFixed(2)}
+                                    </span>
+                                  </>
+                                ) : (
+                                  <span className="text-gray-400 italic w-full text-center">
+                                    Member info unavailable
+                                  </span>
+                                )}
+                              </div>
+                            );
+                          })
+                        ) : (
+                          <div className="text-gray-500 italic text-sm text-center py-2">
+                            No members added yet.
                           </div>
-                        ))
-                      ) : (
-                        <div className="text-gray-500 italic text-sm text-center">
-                          No members added yet.
+                        )}
+                      </div>
+                      <div className="text-base font-medium">
+                        Total Expenses: INR {group.totalExpenses}
+                      </div>
+                      
+                      {/* Recent Expenses */}
+                      {group.expenses && group.expenses.length > 0 ? (
+                        <div className="mt-2">
+                          <h4 className="text-sm font-semibold mb-1">Recent Expenses:</h4>
+                          <div className="space-y-1">
+                            {group.expenses.map((expense) => (
+                              <div key={expense._id} className="flex justify-between items-center text-sm py-1 border-b border-gray-100 dark:border-gray-800 last:border-0">
+                                <div className="flex items-center gap-2">
+                                  <Avatar className="h-5 w-5">
+                                    <AvatarImage src={expense.paidBy?.image} />
+                                    <AvatarFallback>{expense.paidBy?.name?.charAt(0) || '?'}</AvatarFallback>
+                                  </Avatar>
+                                  <span className="text-gray-700 dark:text-gray-200 truncate max-w-[100px]">
+                                    {expense.description || 'Expense'}
+                                  </span>
+                                </div>
+                                <div className="flex flex-col items-end">
+                                  <span className="font-medium">
+                                    {'INR: '+ expense.amount}
+                                  </span>
+                                  <span className="text-xs text-gray-500">
+                                    {new Date(expense.createdAt).toLocaleDateString()}
+                                  </span>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
                         </div>
+                      ) : (
+                        <div className="text-sm text-gray-500 italic mt-2">No recent expenses</div>
                       )}
-                    </div>
-                    <div className="text-base font-medium">
-                      Total Expenses: INR {group.totalExpenses}
-                    </div>
-                    <div className="text-sm text-muted-foreground">
-                      Created: {new Date(group.createdAt).toLocaleDateString()}
-                    </div>
+                      
+                      <div className="text-sm text-muted-foreground">
+                        Created: {new Date(group.createdAt).toLocaleDateString()}
+                      </div>
 
-                    <div className="flex flex-col sm:flex-row gap-3 mt-4 w-full justify-center">
-                      <Button
-                        className="w-full"
-                        variant="default"
-                        onClick={() => {
-                          setSelectedGroupId(group._id);
-                          setShowAddExpense(true);
-                        }}
-                      >
-                        Add Expenses
-                      </Button>
-                      <Button
-                        className="w-full"
-                        variant="outline"
-                        onClick={() => {
-                          setSelectedGroupId(group._id);
-                          setShowAddMember(true);
-                        }}
-                      >
-                        Add Members
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
+                      <div className="flex flex-col sm:flex-row gap-3 mt-4 w-full justify-center">
+                        <Button
+                          className="w-full"
+                          variant="default"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            setSelectedGroupId(group._id);
+                            setShowAddExpense(true);
+                          }}
+                        >
+                          Add Expenses
+                        </Button>
+                        <Button
+                          className="w-full"
+                          variant="outline"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            setSelectedGroupId(group._id);
+                            setShowAddMember(true);
+                          }}
+                        >
+                          Add Members
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </Link>
               );
             })}
           </div>

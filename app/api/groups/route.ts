@@ -4,7 +4,6 @@ import { authOptions } from '@/lib/auth';
 import connectDB from '@/lib/mongodb';
 import Group from '@/models/Group';
 import User from '@/models/User';
-import Member from '@/models/Member'; // ✅ Required for populating
 
 export async function GET() {
   try {
@@ -24,19 +23,51 @@ export async function GET() {
     })
       .populate({
         path: 'members.user',
-        model: 'Member',
-        select: 'name email amount', // ✅ Include 'amount' field for frontend
+        model: 'User',
+        select: 'name email image',
       })
+      .populate('createdBy', 'name email')
       .sort({ createdAt: -1 });
 
-    return NextResponse.json(groups);
+    // ✅ Transform the response and filter out null/invalid members
+    const transformedGroups = groups.map(group => {
+      const groupObj = group.toObject();
+      
+      // Format the createdBy field
+      const formattedCreatedBy = groupObj.createdBy ? {
+        _id: groupObj.createdBy._id,
+        name: groupObj.createdBy.name,
+        email: groupObj.createdBy.email
+      } : null;
+      
+      // Format and filter members
+      const formattedMembers = groupObj.members
+        .filter((member: any) => member.user !== null && member.user !== undefined)
+        .map((member: any) => ({
+          user: {
+            _id: member.user._id,
+            name: member.user.name,
+            email: member.user.email,
+            image: member.user.image
+          },
+          amount: member.amount || 0,
+          joinedAt: member.joinedAt
+        }));
+      
+      return {
+        ...groupObj,
+        createdBy: formattedCreatedBy,
+        members: formattedMembers,
+        memberCount: formattedMembers.length // Add member count for easy display
+      };
+    });
+
+    return NextResponse.json(transformedGroups);
   } catch (error) {
     console.error('Get groups error:', error);
     return NextResponse.json({ message: 'Internal server error' }, { status: 500 });
   }
 }
-
-
 
 export async function POST(req: NextRequest) {
   try {
@@ -52,11 +83,22 @@ export async function POST(req: NextRequest) {
 
     await connectDB();
 
+    // First create the group
     const newGroup = await Group.create({
       name,
       description,
       createdBy: session.user.id,
-      members: [], // no members initially
+      members: [
+        // Add the creator as the first member
+        {
+          user: session.user.id,
+          amount: 0,
+          joinedAt: new Date()
+        }
+      ],
+      totalExpenses: 0,
+      isActive: true,
+      createdAt: new Date()
     });
 
     // ✅ Add this group to the User model
