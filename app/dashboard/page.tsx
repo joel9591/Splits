@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { Plus, Users, Receipt, TrendingUp, DollarSign } from "lucide-react";
+import { Plus, Users, Receipt, TrendingUp, DollarSign, Map } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
 import LoadingSpinner from "@/components/loading-spinner";
 import Navbar from "@/components/navbar";
@@ -20,6 +20,8 @@ import Link from "next/link";
 import CreateGroupDialog from "@/components/create-group-dialog";
 import AddMemberDialog from "@/components/add-member-dialog";
 import AddExpenseDialog from "@/components/add-expense-dialog";
+import AiTripPlanner from "@/components/ai-trip-planner";
+import { AiTripPlannerButton } from "@/components/animated-login-button";
 
 interface DashboardStats {
   totalGroups: number;
@@ -71,6 +73,7 @@ export default function Dashboard() {
     totalExpenses: 0,
     totalOwed: 0,
     totalOwing: 0,
+    expenseCount: 0,
   });
   const [groups, setGroups] = useState<Group[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -78,6 +81,7 @@ export default function Dashboard() {
   const [selectedGroupId, setSelectedGroupId] = useState<string | null>(null);
   const [showAddMember, setShowAddMember] = useState(false);
   const [showAddExpense, setShowAddExpense] = useState(false);
+  const [showAiTripPlanner, setShowAiTripPlanner] = useState(false);
 
   useEffect(() => {
     if (status === "authenticated") {
@@ -144,14 +148,25 @@ export default function Dashboard() {
       <Navbar />
 
       <div className="container mx-auto px-4 py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-            Welcome back, {session?.user?.name}!
-          </h1>
-          <p className="text-gray-600 dark:text-gray-300">
-            Here's an overview of your expenses and groups.
-          </p>
+        <div className="flex justify-between items-center mb-8">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+              Welcome back, {session?.user?.name}!
+            </h1>
+            <p className="text-gray-600 dark:text-gray-300">
+              Here's an overview of your expenses and groups.
+            </p>
+          </div>
+          <AiTripPlannerButton onClick={() => setShowAiTripPlanner(!showAiTripPlanner)} />
         </div>
+        
+        {showAiTripPlanner && (
+          <Card className="mb-8 border-2 border-primary/20 shadow-lg">
+            <CardContent className="p-0">
+              <AiTripPlanner />
+            </CardContent>
+          </Card>
+        )}
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">

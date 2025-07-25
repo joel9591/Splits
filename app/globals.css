@@ -6,6 +6,12 @@
   --foreground-rgb: 0, 0, 0;
   --background-start-rgb: 214, 219, 220;
   --background-end-rgb: 255, 255, 255;
+  --primary-button-color: #6366f1; /* Indigo 500 */
+  --primary-button-hover-color: #4f46e5; /* Indigo 600 */
+  --border-color-1: #ef4444; /* Red 500 */
+  --border-color-2: #22c55e; /* Green 500 */
+  --border-color-3: #3b82f6; /* Blue 500 */
+  --border-color-4: #f97316; /* Orange 500 */
 }
 
 @media (prefers-color-scheme: dark) {
@@ -79,4 +85,132 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* Base button color */
+.animated-button {
+  background-color: var(--primary-button-color);
+  position: relative; /* Ensure children are positioned relative to this */
+  z-index: 1; /* Ensures button content is above borders */
+  transition: background-color 0.3s ease-in-out, transform 0.2s ease-out;
+}
+
+.animated-button:hover {
+  background-color: var(--primary-button-hover-color);
+  transform: translateY(-2px); /* Slight lift on hover */
+}
+
+.animated-button:active {
+  transform: translateY(0); /* Return to original position on click */
+}
+
+/* Crazy Animation - Pulsing background gradient */
+.animated-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    45deg,
+    var(--border-color-1),
+    var(--border-color-2),
+    var(--border-color-3),
+    var(--border-color-4),
+    var(--border-color-1)
+  );
+  background-size: 400% 400%;
+  z-index: -1; /* Behind the button content */
+  filter: blur(8px); /* Soft glow effect */
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+  animation: gradientPulse 5s ease infinite; /* Pulsing animation */
+}
+
+.animated-button:hover::before {
+  opacity: 1; /* Show the glow on hover */
+}
+
+@keyframes gradientPulse {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Multicolor Borders Styling */
+.button-border {
+  position: absolute;
+  background: var(--primary-button-color); /* Default to button color */
+  transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94); /* Smooth animation */
+}
+
+/* Initial state (hidden) and hover states for borders */
+.button-border.border-top,
+.button-border.border-bottom {
+  left: 0;
+  right: 0;
+  height: 2px;
+  transform: scaleX(0); /* Initially hidden */
+  transform-origin: left;
+}
+
+.animated-button:hover .button-border.border-top,
+.animated-button:hover .button-border.border-bottom {
+  transform: scaleX(1); /* Reveal on hover */
+}
+
+.button-border.border-left,
+.button-border.border-right {
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  transform: scaleY(0); /* Initially hidden */
+  transform-origin: top;
+}
+
+.animated-button:hover .button-border.border-left,
+.animated-button:hover .button-border.border-right {
+  transform: scaleY(1); /* Reveal on hover */
+}
+
+/* Individual border colors and positions */
+.button-border.border-top {
+  top: 0;
+  background: var(--border-color-1);
+}
+
+.button-border.border-right {
+  right: 0;
+  background: var(--border-color-2);
+}
+
+.button-border.border-bottom {
+  bottom: 0;
+  background: var(--border-color-3);
+}
+
+.button-border.border-left {
+  left: 0;
+  background: var(--border-color-4);
+}
+
+/* Animation delays for sequential reveal (optional, but cool) */
+.animated-button:hover .button-border.border-top {
+  transition-delay: 0s;
+}
+.animated-button:hover .button-border.border-right {
+  transition-delay: 0.1s;
+}
+.animated-button:hover .button-border.border-bottom {
+  transition-delay: 0.2s;
+}
+.animated-button:hover .button-border.border-left {
+  transition-delay: 0.3s;
 }
