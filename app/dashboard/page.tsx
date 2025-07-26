@@ -153,7 +153,7 @@ export default function Dashboard() {
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
               Welcome back, {session?.user?.name}!
             </h1>
-            <p className="text-gray-600 dark:text-gray-300">
+            <p className="text-gray-600 dark:text-gray-300 w-[100%]">
               Here's an overview of your expenses and groups.
             </p>
           </div>

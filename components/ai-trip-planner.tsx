@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -31,6 +31,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { GoogleMap, useJsApiLoader, StandaloneSearchBox } from '@react-google-maps/api'
 
 interface TripPlan {
   route: string;
@@ -73,9 +74,19 @@ export default function AiTripPlanner() {
   const [members, setMembers] = useState<number>();
   const [startLocation, setStartLocation] = useState("");
   const [endLocation, setEndLocation] = useState("");
-  const [tripType, setTripType] = useState<string>(""); // New state for trip type
+  const [tripType, setTripType] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
+  // Correctly type tripPlan to be TripPlan or null
   const [tripPlan, setTripPlan] = useState<TripPlan | null>(null);
+
+  const startLocationSearchBoxRef = useRef<google.maps.places.SearchBox | null>(null);
+  const endLocationSearchBoxRef = useRef<google.maps.places.SearchBox | null>(null);
+
+  const { isLoaded, loadError } = useJsApiLoader({
+    id: 'google-map-script',
+    googleMapsApiKey: process.env.NEXT_PUBLIC_Maps_API_KEY ?? '',
+    libraries: ['places'],
+  });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -95,39 +106,61 @@ export default function AiTripPlanner() {
     }
     try {
       setTimeout(() => {
-        console.log("Prompt: ", prompt);
-        console.log("Start Date: ", startDate);
-        console.log("End Date: ", endDate);
-        console.log("Members: ", members);
-        console.log("Start Location:", startLocation);
-        console.log("End Location:", endLocation);
-        console.log("Trip Type:", tripType);
-
-        // Simulate a generated trip plan
-        setTripPlan({
-          route: `${startLocation} to ${endLocation}`,
-          places: ["Attraction A", "Attraction B", "Attraction C"],
-          hotels: ["Hotel X", "Hotel Y"],
-          restaurants: ["Restaurant P", "Restaurant Q"],
-          fuelStops: ["Fuel Station 1", "Fuel Station 2"],
-          estimatedCost: 15000 * members,
-          additionalInfo:
-            "Enjoy your personalized trip! Remember to book flights and accommodations in advance.",
-        });
-        console.log("this is your generated trip plan: ", tripPlan);
+        const result: TripPlan = { // Ensure the simulated result matches TripPlan interface
+          route: `A scenic drive from ${startLocation} to ${endLocation} for a ${tripType} trip.`,
+          places: ["Local market", "Historical landmark", "Scenic viewpoint"],
+          hotels: ["Grand Hotel", "Cozy Inn"],
+          restaurants: ["Local Cuisine Delight", "Pizzeria Grande"],
+          fuelStops: ["Station A (Midway)", "Station B (Near Destination)"],
+          estimatedCost: members * 5000 + Math.floor(Math.random() * 2000), // Simulate a cost
+          additionalInfo: "Enjoy your custom-tailored journey!",
+        };
+        setTripPlan(result);
         setIsLoading(false);
         toast.success("Trip plan generated successfully!");
+        console.log(tripPlan);
       }, 3000);
     } catch (error) {
       console.error("Error generating trip plan:", error);
       toast.error("Failed to generate trip plan. Please try again.");
+      setIsLoading(false); // Ensure loading state is reset on error
     }
   };
 
   const downloadPdf = () => {
-    // In a real implementation, this would generate and download a PDF
     toast.info("PDF download functionality is not yet implemented.");
   };
+
+  const onStartLocationLoad = (ref: google.maps.places.SearchBox) => {
+    startLocationSearchBoxRef.current = ref;
+  };
+
+  const onStartLocationPlacesChanged = () => {
+    if (startLocationSearchBoxRef.current) {
+      const places = startLocationSearchBoxRef.current.getPlaces();
+      if (places && places.length > 0) {
+        const selectedPlace = places[0];
+        setStartLocation(selectedPlace.formatted_address || selectedPlace.name || "");
+      }
+    }
+  };
+
+  const onEndLocationLoad = (ref: google.maps.places.SearchBox) => {
+    endLocationSearchBoxRef.current = ref;
+  };
+
+  const onEndLocationPlacesChanged = () => {
+    if (endLocationSearchBoxRef.current) {
+      const places = endLocationSearchBoxRef.current.getPlaces();
+      if (places && places.length > 0) {
+        const selectedPlace = places[0];
+        setEndLocation(selectedPlace.formatted_address || selectedPlace.name || "");
+      }
+    }
+  };
+
+  if (loadError) return <div>Error loading maps</div>;
+  if (!isLoaded) return <div>Loading Maps...</div>;
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-7xl">
@@ -283,13 +316,18 @@ export default function AiTripPlanner() {
                 >
                   Departure Location
                 </label>
-                <Input
-                  id="startLocation"
-                  placeholder="Your starting point"
-                  value={startLocation}
-                  onChange={(e) => setStartLocation(e.target.value)}
-                  className="w-full p-3 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 transition duration-200 ease-in-out"
-                />
+                <StandaloneSearchBox
+                  onLoad={onStartLocationLoad}
+                  onPlacesChanged={onStartLocationPlacesChanged}
+                >
+                  <Input
+                    id="startLocation"
+                    placeholder="Your starting point"
+                    value={startLocation}
+                    onChange={(e) => setStartLocation(e.target.value)}
+                    className="w-full p-3 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 transition duration-200 ease-in-out"
+                  />
+                </StandaloneSearchBox>
               </div>
 
               <div className="space-y-2">
@@ -299,21 +337,26 @@ export default function AiTripPlanner() {
                 >
                   Arrival Location
                 </label>
-                <Input
-                  id="endLocation"
-                  placeholder="Your destination"
-                  value={endLocation}
-                  onChange={(e) => setEndLocation(e.target.value)}
-                  className="w-full p-3 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 transition duration-200 ease-in-out"
-                />
+                <StandaloneSearchBox
+                  onLoad={onEndLocationLoad}
+                  onPlacesChanged={onEndLocationPlacesChanged}
+                >
+                  <Input
+                    id="endLocation"
+                    placeholder="Your destination"
+                    value={endLocation}
+                    onChange={(e) => setEndLocation(e.target.value)}
+                    className="w-full p-3 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 transition duration-200 ease-in-out"
+                  />
+                </StandaloneSearchBox>
               </div>
             </div>
 
             <Button
               type="submit"
               className="
-    relative 
-    overflow-hidden w-full lg:w-full md:w-auto md:px-8 mt-4 text-white font-bold py-3 px-6 rounded-lg transition-all duration-300 ease-in-out focus:outline-none focus:ring-4 focus:ring-purple-300 group animated-button 
+    relative
+    overflow-hidden w-full lg:w-full md:px-8 mt-4 text-white font-bold py-3 px-6 rounded-lg transition-all duration-300 ease-in-out focus:outline-none focus:ring-4 focus:ring-purple-300 group animated-button md:w-full
   "
               disabled={isLoading}
             >
@@ -327,12 +370,10 @@ export default function AiTripPlanner() {
               ) : (
                 <span className="flex items-center justify-center">
                   <Plane className="mr-2 h-5 w-5 transition-transform duration-500 group-hover:translate-x-1" />{" "}
-                  {/* Attractive icon */}
                   Generate Trip Plan
                 </span>
               )}
 
-              {/* Multicolor Borders - These will be animated */}
               <span className="button-border border-top"></span>
               <span className="button-border border-right"></span>
               <span className="button-border border-bottom"></span>
