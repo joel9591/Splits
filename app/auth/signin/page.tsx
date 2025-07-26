@@ -1,23 +1,29 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { signIn, getSession } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
-import { toast } from 'sonner';
-import { Calculator, Mail, Lock, ArrowRight } from 'lucide-react';
-import { ThemeToggle } from '@/components/theme-toggle';
+import { useState } from "react";
+import { signIn, getSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { toast } from "sonner";
+import { Calculator, Mail, Lock, ArrowRight } from "lucide-react";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 export default function SignIn() {
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
-    email: '',
-    password: '',
+    email: "",
+    password: "",
   });
   const router = useRouter();
 
@@ -26,20 +32,20 @@ export default function SignIn() {
     setIsLoading(true);
 
     try {
-      const result = await signIn('credentials', {
+      const result = await signIn("credentials", {
         email: formData.email,
         password: formData.password,
         redirect: false,
       });
 
       if (result?.error) {
-        toast.error('Invalid credentials. Please try again.');
+        toast.error("Invalid credentials. Please try again.");
       } else {
-        toast.success('Signed in successfully!');
-        router.push('/dashboard');
+        toast.success("Signed in successfully!");
+        router.push("/dashboard");
       }
     } catch (error) {
-      toast.error('An error occurred. Please try again.');
+      toast.error("An error occurred. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -50,11 +56,11 @@ export default function SignIn() {
     try {
       // The callbackUrl is where the user will be redirected after successful authentication
       // The redirect: true ensures the browser handles the redirect
-      const result = await signIn('google', { 
-        callbackUrl: '/dashboard',
-        redirect: true
+      const result = await signIn("google", {
+        callbackUrl: "/dashboard",
+        redirect: true,
       });
-      
+
       // Note: With redirect: true, the code below won't execute unless there's an error
       // as the browser will be redirected to the callbackUrl
       if (result?.error) {
@@ -62,25 +68,30 @@ export default function SignIn() {
         setIsLoading(false);
       }
     } catch (error) {
-      console.error('Google sign-in error:', error);
-      toast.error('Failed to sign in with Google. Please try again.');
+      console.error("Google sign-in error:", error);
+      toast.error("Failed to sign in with Google. Please try again.");
       setIsLoading(false);
     }
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
+      <div className="w-full max-w-md overflow-hidden">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center justify-between mb-4">
           <Link href="/" className="flex items-center space-x-2">
-            <Calculator className="h-8 w-8 text-primary" />
+            {/* <Calculator className="h-8 w-8 text-primary" /> */}
+            <img
+              src="/Splits_logo.png"
+              alt="Logo"
+              className="w-12 h-12 sm:w-12 sm:h-12 md:w-12 md:h-12 "
+            />
             <span className="text-2xl font-bold">Splits</span>
           </Link>
           <ThemeToggle />
         </div>
 
-        <Card className="border-none shadow-xl">
+        <Card className="border-none shadow-xl mb-10">
           <CardHeader className="space-y-1 text-center">
             <CardTitle className="text-2xl font-bold">Welcome back</CardTitle>
             <CardDescription>
@@ -137,7 +148,9 @@ export default function SignIn() {
                     placeholder="Enter your email"
                     className="pl-10"
                     value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, email: e.target.value })
+                    }
                     required
                   />
                 </div>
@@ -153,7 +166,9 @@ export default function SignIn() {
                     placeholder="Enter your password"
                     className="pl-10"
                     value={formData.password}
-                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, password: e.target.value })
+                    }
                     required
                   />
                 </div>
@@ -175,13 +190,21 @@ export default function SignIn() {
             </form>
 
             <div className="text-center text-sm">
-              <span className="text-muted-foreground">Don't have an account? </span>
-              <Link href="/auth/signup" className="text-primary hover:underline font-medium">
+              <span className="text-muted-foreground">
+                Don't have an account?{" "}
+              </span>
+              <Link
+                href="/auth/signup"
+                className="text-primary hover:underline font-medium"
+              >
                 Sign up
               </Link>
             </div>
             <div className="text-center text-sm">
-              <Link href="/auth/forgotPassword" className="text-primary hover:underline font-medium">
+              <Link
+                href="/auth/forgotPassword"
+                className="text-primary hover:underline font-medium"
+              >
                 Forgot Password?
               </Link>
             </div>

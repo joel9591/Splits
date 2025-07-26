@@ -31,7 +31,7 @@ export default function LandingPage() {
             <img
               src="./Splits_logo.png"
               alt="Logo"
-              className="w-12 h-12 sm:w-12 sm:h-12 md:w-12 md:h-12"
+              className="w-12 h-12 sm:w-12 sm:h-12 md:w-12 md:h-12 "
             />
             <span className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 dark:text-white">
               Splits
@@ -59,7 +59,7 @@ export default function LandingPage() {
         <div className="container mx-auto text-center">
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-5 leading-snug">
             Split Expenses
-            <span className="text-primary"> Effortlessly</span>
+            <span className="text-primary"> Effortlessly 💸</span>
           </h1>
           <p className="text-base sm:text-lg md:text-xl text-gray-600 dark:text-gray-300 mb-6 max-w-3xl mx-auto">
             Share expenses with friends and family. Track who owes what, settle
@@ -135,7 +135,20 @@ export default function LandingPage() {
                 ))}
               </ul>
               <Link href="/auth/signup">
-                <Button className="bg-gradient-to-r from-secondary to-purple-600 hover:from-primary/90 hover:to-purple-600/90 text-white hover:text-black">
+                <Button
+                  className="
+    text-white 
+    bg-gradient-to-r 
+    from-green-500 
+    to-purple-600 
+    hover:from-blue-500 
+    hover:to-purple-600 
+    dark:from-secondary 
+    dark:to-purple-600 
+    dark:hover:from-green-500 
+    dark:hover:to-purple-600
+  "
+                >
                   <Map className="h-4 w-4 mr-2" />
                   Try AI Trip Planner
                 </Button>
