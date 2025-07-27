@@ -1,9 +1,18 @@
+// I:\New folder-Splits\app\api\groups\[groupId]\members\route.ts
 import { NextRequest, NextResponse } from "next/server";
 import dbConnect from "@/lib/mongodb";
 import Group from "@/models/Group";
 import User from "@/models/User";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
+import { Types } from 'mongoose';
+
+// Assuming Group model's members array stores user references and other data
+interface GroupMemberInGroupModel {
+    user: Types.ObjectId; // This is the ObjectId reference to the User model
+    amount: number;
+    joinedAt: Date;
+}
 
 export async function POST(
   req: NextRequest,
@@ -11,7 +20,6 @@ export async function POST(
 ) {
   await dbConnect();
   
-  // Get the current session to verify authorization
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
@@ -24,50 +32,49 @@ export async function POST(
   }
 
   try {
-    // Find the group and verify it exists
     const group = await Group.findById(params.groupId);
     if (!group) {
       return NextResponse.json({ message: "Group not found" }, { status: 404 });
     }
     
-    // Verify the current user is the group creator or a member
+    // Explicitly cast group.members to the expected type for TypeScript to infer 'm' correctly
+    const groupMembers: GroupMemberInGroupModel[] = group.members as GroupMemberInGroupModel[];
+
     const isAuthorized = 
       group.createdBy.toString() === session.user.id ||
-      group.members.some(m => m.user.toString() === session.user.id);
+      groupMembers.some(m => m.user.toString() === session.user.id);
       
     if (!isAuthorized) {
       return NextResponse.json({ message: "Not authorized to add members to this group" }, { status: 403 });
     }
 
-    // First check if user exists in the system
     let user = null;
     if (email) {
       user = await User.findOne({ email });
     }
 
-    // If user doesn't exist in the system, create a new user
     if (!user) {
       try {
-        // For users added to groups, set provider to 'external' to bypass password requirement
         user = await User.create({
           name,
-          email: email || `${phone}@placeholder.com`, // Use phone as email if not provided
+          email: email || '',
           phone,
-          provider: 'google', // Use google provider to bypass password requirement
-          // Generate a random image based on name
+          provider: 'google',
           image: `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random`
         });
-      } catch (createError) {
+      } catch (createError: unknown) { // Fixed: Type 'createError' as unknown
         console.error("User creation error:", createError);
+        // Safely access message property if createError is an Error instance
+        const errorMessage = createError instanceof Error ? createError.message : "An unknown error occurred during user creation.";
         return NextResponse.json({ 
           message: "Failed to create user", 
-          error: createError.message 
+          error: errorMessage 
         }, { status: 400 });
       }
     }
 
-    // Check if user is already in the group
-    const alreadyInGroup = group.members.some((m) =>
+    // Explicitly cast group.members again for the 'some' method
+    const alreadyInGroup = (group.members as GroupMemberInGroupModel[]).some(m =>
       m.user.toString() === user._id.toString()
     );
     
@@ -75,18 +82,16 @@ export async function POST(
       return NextResponse.json({ message: "Member already in the group." }, { status: 400 });
     }
 
-    // Add user to the group
     group.members.push({
       user: user._id,
-      amount: 0, // Initialize with zero amount
+      amount: 0,
       joinedAt: new Date(),
     });
 
     await group.save();
     
-    // Also update the user's groups array
     await User.findByIdAndUpdate(user._id, {
-      $addToSet: { groups: group._id } // Use addToSet to avoid duplicates
+      $addToSet: { groups: group._id }
     });
 
     return NextResponse.json({

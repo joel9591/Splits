@@ -140,7 +140,7 @@ export default function Dashboard() {
   };
 
   if (status === "loading" || isLoading) {
-    return <LoadingSpinner />;
+    return <LoadingSpinner size="w-24 h-24"/>;
   }
 
   return (
@@ -190,7 +190,7 @@ export default function Dashboard() {
               <Receipt className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stats.totalExpenses}</div>
+              <div className="text-2xl font-bold">{formatCurrency(stats.totalExpenses)}</div>
             </CardContent>
           </Card>
 
@@ -308,7 +308,7 @@ export default function Dashboard() {
                         )}
                       </div>
                       <div className="text-base font-medium">
-                        Total Expenses: INR {group.totalExpenses}
+                        Total Expenses: {formatCurrency(group.totalExpenses)}
                       </div>
                       
                       {/* Recent Expenses */}
@@ -329,7 +329,7 @@ export default function Dashboard() {
                                 </div>
                                 <div className="flex flex-col items-end">
                                   <span className="font-medium">
-                                    {'INR: '+ expense.amount}
+                                    {formatCurrency(expense.amount)}
                                   </span>
                                   <span className="text-xs text-gray-500">
                                     {new Date(expense.createdAt).toLocaleDateString()}

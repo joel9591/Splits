@@ -138,12 +138,10 @@ export default function GroupDetails() {
   };
 
   if (status === "loading" || loading) {
-    return (
-      <div className="flex h-screen items-center justify-center">
-        <LoadingSpinner size="lg" />
-      </div>
-    );
-  }
+  return (
+      <LoadingSpinner size="w-24 h-24" />
+  );
+}
 
   if (!session) {
     return (
@@ -276,7 +274,7 @@ export default function GroupDetails() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {group.members.map((member) => (
+                  {group.members.map((member) => 
                     <div
                       key={member.user._id}
                       className="flex items-center justify-between rounded-lg border p-4"
@@ -293,16 +291,16 @@ export default function GroupDetails() {
                         </Avatar>
                         <div className="ml-4">
                           <p className="font-medium">{member.user.name}</p>
-                          <p className="text-sm text-gray-500">{member.user.email}</p>
+                          <p className="text-sm text-gray-500">{member.user.email || ""}</p>
                         </div>
-                      </div>
-                      <div className="flex items-center">
-                        <Badge variant={member.amount > 0 ? "success" : "secondary"}>
+                      </div> 
+                      <div className="flex items-center h-full w-full justify-end ">
+                        <Badge className="text-sm font-semibold" variant={member.amount > 0 ? "success" : "secondary"}>
                           {formatCurrency(member.amount)}
                         </Badge>
                       </div>
                     </div>
-                  ))}
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -326,13 +324,13 @@ export default function GroupDetails() {
                       >
                         <div className="flex items-center justify-between">
                           <div>
-                            <h3 className="font-medium">{expense.description || "Expense"}</h3>
+                            <h3 className="font-bold text-xl">{expense.description || "Expense"}</h3>
                             <p className="text-sm text-gray-500">
                               Paid by {expense.paidBy.name} on{" "}
                               {new Date(expense.createdAt).toLocaleDateString()}
                             </p>
                           </div>
-                          <Badge variant="outline" className="text-lg font-bold">
+                          <Badge variant="outline" className="text-sm font-semibold">
                             {formatCurrency(expense.amount)}
                           </Badge>
                         </div>
@@ -376,7 +374,7 @@ export default function GroupDetails() {
                         className="flex items-center justify-between rounded-lg border p-4"
                       >
                         <div className="flex items-center">
-                          <Avatar className="h-8 w-8">
+                          <Avatar className="h-6 w-6">
                             {settlement.from.image ? (
                               <AvatarImage src={settlement.from.image} alt={settlement.from.name} />
                             ) : (
@@ -385,8 +383,10 @@ export default function GroupDetails() {
                               </AvatarFallback>
                             )}
                           </Avatar>
-                          <span className="mx-2">owes</span>
-                          <Avatar className="h-8 w-8">
+                          <div className="text-sm ml-2 font-extrabold"> {settlement.from.name}</div>
+                           
+                          <span className="mx-4 text-sm">Should pay to</span>
+                          <Avatar className="h-6 w-6">
                             {settlement.to.image ? (
                               <AvatarImage src={settlement.to.image} alt={settlement.to.name} />
                             ) : (
@@ -395,6 +395,7 @@ export default function GroupDetails() {
                               </AvatarFallback>
                             )}
                           </Avatar>
+                          <div className="text-sm ml-2 mr-4 font-extrabold">{settlement.to.name}</div>
                         </div>
                         <Badge>{formatCurrency(settlement.amount)}</Badge>
                       </div>

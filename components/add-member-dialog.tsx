@@ -38,8 +38,8 @@ export default function AddMemberDialog({
   };
 
   const handleSubmit = async () => {
-    if (!form.name.trim() || !form.phone.trim()) {
-      toast.error("Name and phone number are required.");
+    if (!form.name.trim() || !form.phone.trim() || !form.email.trim()) {
+      toast.error("Name, Phone Number and email are required.");
       return;
     }
 
@@ -77,20 +77,20 @@ export default function AddMemberDialog({
 
         <div className="space-y-3">
           <Input
-            placeholder="Name"
+            placeholder="Name*"
             name="name"
             value={form.name}
             onChange={handleChange}
           />
           <Input
-            placeholder="Phone Number"
+            placeholder="Phone Number*"
             name="phone"
             type="tel"
             value={form.phone}
             onChange={handleChange}
           />
           <Input
-            placeholder="Email (optional)"
+            placeholder="Email*"
             name="email"
             type="email"
             value={form.email}
