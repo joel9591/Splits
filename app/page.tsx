@@ -17,11 +17,11 @@ export default function Home() {
   }, [status, router]);
 
   if (status === 'loading') {
-    return <LoadingSpinner />;
+    return <LoadingSpinner size="w-24 h-24" />;
   }
 
   if (status === 'authenticated') {
-    return <LoadingSpinner />;
+    return <LoadingSpinner size="w-24 h-24" />;
   }
 
   return <LandingPage />;

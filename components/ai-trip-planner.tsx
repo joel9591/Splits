@@ -494,12 +494,14 @@
 // }
 
 // I:\New folder-Splits\components\ai-trip-planner.tsx
+// I:\New folder-Splits\components\ai-trip-planner.tsx
 "use client";
 
 import { useState } from "react";
 import { toast } from "sonner";
 import { Plane, Loader2 } from "lucide-react";
-import { TripPlan, ApiResponse, ITrip } from "@/lib/types"; // Import ITrip and ApiResponse
+// *** IMPORTANT CHANGE HERE ***
+import { TripPlan, ApiResponse, ITripClient } from "@/lib/types"; // Import ITripClient
 
 // Import the new components from the same folder
 import TripForm from "@/components/TripForm";
@@ -507,127 +509,130 @@ import TripResults from "@/components/TripResults";
 import PresetTrips from "@/components/PresetTrips";
 
 export default function AiTripPlanner() {
-  // All state is managed here in the parent component
-  const [prompt, setPrompt] = useState("");
-  const [startDate, setStartDate] = useState<Date>();
-  const [endDate, setEndDate] = useState<Date>();
-  const [members, setMembers] = useState<number>();
-  const [startLocation, setStartLocation] = useState("");
-  const [endLocation, setEndLocation] = useState("");
-  const [tripType, setTripType] = useState<string>("");
-  
-  const [isLoading, setIsLoading] = useState(false);
-  const [generatedTrip, setGeneratedTrip] = useState<ITrip | null>(null); // State now holds the full Trip object from DB
+  // All state is managed here in the parent component
+  const [prompt, setPrompt] = useState("");
+  const [startDate, setStartDate] = useState<Date>();
+  const [endDate, setEndDate] = useState<Date>();
+  const [members, setMembers] = useState<number>(1);
+  const [startLocation, setStartLocation] = useState("");
+  const [endLocation, setEndLocation] = useState("");
+  const [tripType, setTripType] = useState<string>("");
+  
+  const [isLoading, setIsLoading] = useState(false);
+  // *** IMPORTANT CHANGE HERE ***
+  const [generatedTrip, setGeneratedTrip] = useState<ITripClient | null>(null); // State now holds the full Trip object from DB
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!prompt || !startDate || !endDate || !members || !startLocation || !endLocation || !tripType) {
-      toast.error("Please fill all the details to generate your trip plan.");
-      return;
-    }
-    
-    setIsLoading(true);
-    setGeneratedTrip(null); // Clear previous results
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!prompt || !startDate || !endDate || !members || !startLocation || !endLocation || !tripType) {
+      toast.error("Please fill all the details to generate your trip plan.");
+      return;
+    }
+    
+    setIsLoading(true);
+    setGeneratedTrip(null); // Clear previous results
 
-    try {
-      const response = await fetch("/api/generate-trip", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          prompt,
-          startDate: startDate.toISOString().split("T")[0],
-          endDate: endDate.toISOString().split("T")[0],
-          members,
-          startLocation,
-          endLocation,
-          tripType,
-        }),
-      });
+    try {
+      const response = await fetch("/api/generate-trip", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          prompt,
+          startDate: startDate.toISOString().split("T")[0],
+          endDate: endDate.toISOString().split("T")[0],
+          members,
+          startLocation,
+          endLocation,
+          tripType,
+        }),
+      });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Something went wrong");
-      }
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Something went wrong");
+      }
 
-      const result: ApiResponse = await response.json();
-      // Store the entire ITrip object received from the backend
-      setGeneratedTrip({
-          _id: result._id,
-          tripTitle: result.tripPlan.tripTitle,
-          placesToVisit: result.tripPlan.placesToVisit,
-          hotelsOnTheWay: result.tripPlan.hotelsOnTheWay,
-          restaurantsOnTheWay: result.tripPlan.restaurantsOnTheWay,
-          fuelStopsOnTheWay: result.tripPlan.fuelStopsOnTheWay,
-          estimatedCost: result.tripPlan.estimatedCost,
-          createdBy: "user-id-placeholder", // This will be correctly populated by the backend, here for type safety
-          pdfUrl: result.pdfUrl,
-      });
-      
-      toast.success("Your amazing trip plan has been generated and saved!");
-    } catch (error: any) {
-      console.error("Error generating trip plan:", error);
-      toast.error(error.message || "Failed to generate trip plan.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
+      const result: ApiResponse = await response.json();
+      // Store the entire ITripClient object received from the backend
+      setGeneratedTrip({
+          _id: result._id, // This is now correctly 'string'
+          tripTitle: result.tripPlan.tripTitle,
+          placesToVisit: result.tripPlan.placesToVisit,
+          hotelsOnTheWay: result.tripPlan.hotelsOnTheWay,
+          restaurantsOnTheWay: result.tripPlan.restaurantsOnTheWay,
+          fuelStopsOnTheWay: result.tripPlan.fuelStopsOnTheWay,
+          estimatedCost: result.tripPlan.estimatedCost,
+          createdBy: result.createdBy, // Use result.createdBy which is a string from ApiResponse
+          pdfUrl: result.pdfUrl,
+          createdAt: result.createdAt, // Use result.createdAt from ApiResponse
+          updatedAt: result.updatedAt, // Use result.updatedAt from ApiResponse
+      });
+      
+      toast.success("Your amazing trip plan has been generated and saved!");
+    } catch (error: any) {
+      console.error("Error generating trip plan:", error);
+      toast.error(error.message || "Failed to generate trip plan.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-  const downloadPdf = () => {
-    if (!generatedTrip?.pdfUrl) {
-      toast.error("No PDF available to download.");
-      return;
-    }
-    // The PDF URL is now directly from the saved trip object
-    window.open(generatedTrip.pdfUrl, "_blank");
-  };
+  const downloadPdf = () => {
+    if (!generatedTrip?.pdfUrl) {
+      toast.error("No PDF available to download.");
+      return;
+    }
+    // The PDF URL is now directly from the saved trip object
+    window.open(generatedTrip.pdfUrl, "_blank");
+  };
 
-  return (
-    <div className="container mx-auto px-4 py-8 max-w-7xl">
-      {/* The form component is always visible */}
-      <TripForm
-        prompt={prompt}
-        setPrompt={setPrompt}
-        startDate={startDate}
-        setStartDate={setStartDate}
-        endDate={endDate}
-        setEndDate={setEndDate}
-        members={members}
-        setMembers={setMembers}
-        startLocation={startLocation}
-        setStartLocation={setStartLocation}
-        endLocation={endLocation}
-        setEndLocation={setEndLocation}
-        tripType={tripType}
-        setTripType={setTripType}
-        isLoading={isLoading}
-        handleSubmit={handleSubmit}
-      />
+  return (
+    <div className="container mx-auto px-4 py-8 max-w-7xl">
+      {/* The form component is always visible */}
+      <TripForm
+        prompt={prompt}
+        setPrompt={setPrompt}
+        startDate={startDate}
+        setStartDate={setStartDate}
+        endDate={endDate}
+        setEndDate={setEndDate}
+        members={members}
+        setMembers={setMembers}
+        startLocation={startLocation}
+        setStartLocation={setStartLocation}
+        endLocation={endLocation}
+        setEndLocation={setEndLocation}
+        tripType={tripType}
+        setTripType={setTripType}
+        isLoading={isLoading}
+        handleSubmit={handleSubmit}
+      />
 
-      {/* --- CORRECTED CONDITIONAL RENDERING LOGIC --- */}
-      
-      {/* 1. Show a loading spinner when a request is in progress */}
-      {isLoading && (
-        <div className="text-center mt-12 flex flex-col items-center justify-center">
-            <Loader2 className="h-12 w-12 animate-spin text-indigo-600" />
-            <p className="mt-4 text-lg text-gray-600 dark:text-gray-300">Crafting your perfect journey...</p>
-        </div>
-      )}
+      {/* --- CORRECTED CONDITIONAL RENDERING LOGIC --- */}
+      
+      {/* 1. Show a loading spinner when a request is in progress */}
+      {isLoading && (
+        <div className="text-center mt-12 flex flex-col items-center justify-center">
+            <Loader2 className="h-12 w-12 animate-spin text-indigo-600" />
+            <p className="mt-4 text-lg text-gray-600 dark:text-gray-300">Crafting your perfect journey...</p>
+        </div>
+      )}
 
-      {/* 2. Show the results only when the plan is generated and not loading */}
-      {generatedTrip && !isLoading && (
-        <TripResults 
-            tripPlan={generatedTrip} // Pass the entire trip object as TripPlan
-            members={members}
-            downloadPdf={downloadPdf}
-            pdfId={generatedTrip.pdfUrl.split('/').pop()?.replace('.pdf', '') || null} // Extract PDF ID from URL if needed by TripResults, though pdfUrl is better.
-        />
-      )}
+      {/* 2. Show the results only when the plan is generated and not loading */}
+      {generatedTrip && !isLoading && (
+        <TripResults 
+            tripPlan={generatedTrip} // Pass the entire ITripClient object as TripPlan
+            members={members}
+            downloadPdf={downloadPdf}
+            pdfId={generatedTrip.pdfUrl.split('/').pop()?.replace('.pdf', '') || null} // Extract PDF ID from URL if needed by TripResults, though pdfUrl is better.
+        />
+      )}
 
-      {/* 3. Show the preset trips only initially (no plan and not loading) */}
-      {!generatedTrip && !isLoading && (
-        <PresetTrips />
-      )}
-    </div>
-  );
+      {/* 3. Show the preset trips only initially (no plan and not loading) */}
+      {!generatedTrip && !isLoading && (
+        <PresetTrips />
+      )}
+    </div>
+  );
 }
 

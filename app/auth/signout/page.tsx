@@ -48,7 +48,7 @@ export default function SignOut() {
   if (!session) {
     return (
       <div className="flex justify-center items-center min-h-screen">
-        <LoadingSpinner />
+        <LoadingSpinner size="w-24 h-24"/>
       </div>
     );
   }

@@ -78,7 +78,7 @@ export async function POST(req: NextRequest, { params }: { params: { groupId: st
     // Verify the current user is the group creator or a member
     const isAuthorized = 
       group.createdBy.toString() === session.user.id ||
-      group.members.some(m => m.user._id.toString() === session.user.id);
+      group.members.some((m: any) => m.user._id.toString() === session.user.id);
       
     if (!isAuthorized) {
       return NextResponse.json({ message: "Not authorized to add expenses to this group" }, { status: 403 });
@@ -103,7 +103,7 @@ export async function POST(req: NextRequest, { params }: { params: { groupId: st
       paidBy: memberId,
       group: group._id,
       splitType: 'equal',
-      splitDetails: group.members.map(member => ({
+      splitDetails: group.members.map((member: any) => ({
         user: member.user._id,
         amount: numericAmount / group.members.length,
         isPaid: member.user._id.toString() === memberId.toString() // Paid for the person who created the expense
