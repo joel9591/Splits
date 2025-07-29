@@ -1,25 +1,32 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { signIn } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
-import { toast } from 'sonner';
-import { Calculator, Mail, Lock, User, ArrowRight } from 'lucide-react';
-import { ThemeToggle } from '@/components/theme-toggle';
+import { useState } from "react";
+import { signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { toast } from "sonner";
+import { Calculator, Mail, Lock, User, ArrowRight } from "lucide-react";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 export default function SignUp() {
+  console.log("this is signup page");
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
+    name: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
   });
   const router = useRouter();
 
@@ -28,16 +35,16 @@ export default function SignUp() {
     setIsLoading(true);
 
     if (formData.password !== formData.confirmPassword) {
-      toast.error('Passwords do not match');
+      toast.error("Passwords do not match");
       setIsLoading(false);
       return;
     }
 
     try {
-      const response = await fetch('/api/auth/signup', {
-        method: 'POST',
+      const response = await fetch("/api/auth/signup", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           name: formData.name,
@@ -47,23 +54,23 @@ export default function SignUp() {
       });
 
       if (response.ok) {
-        toast.success('Account created successfully!');
+        toast.success("Account created successfully!");
         // Automatically sign in the user
-        const result = await signIn('credentials', {
+        const result = await signIn("credentials", {
           email: formData.email,
           password: formData.password,
           redirect: false,
         });
 
         if (result?.ok) {
-          router.push('/dashboard');
+          router.push("/dashboard");
         }
       } else {
         const data = await response.json();
-        toast.error(data.message || 'Failed to create account');
+        toast.error(data.message || "Failed to create account");
       }
     } catch (error) {
-      toast.error('An error occurred. Please try again.');
+      toast.error("An error occurred. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -74,11 +81,11 @@ export default function SignUp() {
     try {
       // The callbackUrl is where the user will be redirected after successful authentication
       // The redirect: true ensures the browser handles the redirect
-      const result = await signIn('google', { 
-        callbackUrl: '/dashboard',
-        redirect: true
+      const result = await signIn("google", {
+        callbackUrl: "/dashboard",
+        redirect: true,
       });
-      
+
       // Note: With redirect: true, the code below won't execute unless there's an error
       // as the browser will be redirected to the callbackUrl
       if (result?.error) {
@@ -86,8 +93,8 @@ export default function SignUp() {
         setIsLoading(false);
       }
     } catch (error) {
-      console.error('Google sign-in error:', error);
-      toast.error('Failed to sign in with Google. Please try again.');
+      console.error("Google sign-in error:", error);
+      toast.error("Failed to sign in with Google. Please try again.");
       setIsLoading(false);
     }
   };
@@ -106,7 +113,9 @@ export default function SignUp() {
 
         <Card className="border-none shadow-xl">
           <CardHeader className="space-y-1 text-center">
-            <CardTitle className="text-2xl font-bold">Create an account</CardTitle>
+            <CardTitle className="text-2xl font-bold">
+              Create an account
+            </CardTitle>
             <CardDescription>
               Get started with Splits and begin sharing expenses
             </CardDescription>
@@ -161,7 +170,9 @@ export default function SignUp() {
                     placeholder="Enter your full name"
                     className="pl-10"
                     value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, name: e.target.value })
+                    }
                     required
                   />
                 </div>
@@ -177,7 +188,9 @@ export default function SignUp() {
                     placeholder="Enter your email"
                     className="pl-10"
                     value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, email: e.target.value })
+                    }
                     required
                   />
                 </div>
@@ -193,7 +206,9 @@ export default function SignUp() {
                     placeholder="Create a password"
                     className="pl-10"
                     value={formData.password}
-                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, password: e.target.value })
+                    }
                     required
                   />
                 </div>
@@ -209,7 +224,12 @@ export default function SignUp() {
                     placeholder="Confirm your password"
                     className="pl-10"
                     value={formData.confirmPassword}
-                    onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        confirmPassword: e.target.value,
+                      })
+                    }
                     required
                   />
                 </div>
@@ -231,8 +251,13 @@ export default function SignUp() {
             </form>
 
             <div className="text-center text-sm">
-              <span className="text-muted-foreground">Already have an account? </span>
-              <Link href="/auth/signin" className="text-primary hover:underline font-medium">
+              <span className="text-muted-foreground">
+                Already have an account?{" "}
+              </span>
+              <Link
+                href="/auth/signin"
+                className="text-primary hover:underline font-medium"
+              >
                 Sign in
               </Link>
             </div>

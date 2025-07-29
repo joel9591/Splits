@@ -23,6 +23,7 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import AnimatedLoginButton from "@/components/animated-login-button";
 
 export default function LandingPage() {
+  console.log("LandingPage");
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       <header className="fixed w-full top-0 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md z-50 border-b border-gray-200 dark:border-gray-800 m-0 p-0 ">

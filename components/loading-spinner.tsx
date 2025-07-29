@@ -30,6 +30,7 @@
 import React from 'react';
 
 export default function LoadingSpinner({ size }: { size: string }) {
+  console.log("loader is loading");
   return (
     // Added a style block for the custom animations
     <>

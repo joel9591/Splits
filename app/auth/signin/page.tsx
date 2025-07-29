@@ -20,6 +20,7 @@ import { Calculator, Mail, Lock, ArrowRight } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
 
 export default function SignIn() {
+  console.log('signin page opened');
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
@@ -54,11 +55,9 @@ export default function SignIn() {
   const handleGoogleSignIn = async () => {
     setIsLoading(true);
     try {
-      // The callbackUrl is where the user will be redirected after successful authentication
-      // The redirect: true ensures the browser handles the redirect
       const result = await signIn("google", {
         callbackUrl: "/dashboard",
-        redirect: true,
+        redirect: false,
       });
 
       // Note: With redirect: true, the code below won't execute unless there's an error
