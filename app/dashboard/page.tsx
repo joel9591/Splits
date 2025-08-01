@@ -82,6 +82,7 @@ export default function Dashboard() {
   const [showAddMember, setShowAddMember] = useState(false);
   const [showAddExpense, setShowAddExpense] = useState(false);
   const [showAiTripPlanner, setShowAiTripPlanner] = useState(false);
+ 
 
   useEffect(() => {
     if (status === "authenticated") {
@@ -129,11 +130,21 @@ export default function Dashboard() {
       } else {
         const errorData = await groupsResponse.json();
         console.error("Groups API error:", errorData);
-        toast.error("Failed to load groups");
+        toast.error("Failed to load groups", {
+          icon: "❌",
+          style: {
+            color: "#dc2626",
+          },
+        });
       }
     } catch (error) {
       console.error("Dashboard fetch error:", error);
-      toast.error("Failed to load dashboard data");
+      toast.error("Failed to load dashboard data", {
+          icon: "❌",
+          style: {
+            color: "#dc2626",
+          },
+        });
     } finally {
       setIsLoading(false);
     }

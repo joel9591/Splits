@@ -35,10 +35,20 @@ export default function ResetPassword() {
         toast.success('Password reset successfully!');
         router.push('/auth/signin');
       } else {
-        toast.error(data.message || 'Password reset failed.');
+        toast.error(data.message || 'Password reset failed.', {
+          icon: "❌",
+          style: {
+            color: "#dc2626",
+          },
+        });
       }
     } catch (err) {
-      toast.error('Something went wrong.');
+      toast.error('Something went wrong.', {
+          icon: "❌",
+          style: {
+            color: "#dc2626",
+          },
+        });
     } finally {
       setIsLoading(false);
     }

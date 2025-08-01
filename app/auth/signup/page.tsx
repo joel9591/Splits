@@ -28,7 +28,12 @@ export default function SignUp() {
     setIsLoading(true);
 
     if (formData.password !== formData.confirmPassword) {
-      toast.error('Passwords do not match');
+      toast.error('Passwords do not match', {
+          icon: "❌",
+          style: {
+            color: "#dc2626",
+          },
+        });
       setIsLoading(false);
       return;
     }
@@ -60,10 +65,20 @@ export default function SignUp() {
         }
       } else {
         const data = await response.json();
-        toast.error(data.message || 'Failed to create account');
+        toast.error(data.message || 'Failed to create account', {
+          icon: "❌",
+          style: {
+            color: "#dc2626",
+          },
+        });
       }
     } catch (error) {
-      toast.error('An error occurred. Please try again.');
+      toast.error('An error occurred. Please try again.', {
+          icon: "❌",
+          style: {
+            color: "#dc2626",
+          },
+        });
     } finally {
       setIsLoading(false);
     }
@@ -82,12 +97,22 @@ export default function SignUp() {
       // Note: With redirect: true, the code below won't execute unless there's an error
       // as the browser will be redirected to the callbackUrl
       if (result?.error) {
-        toast.error(`Google sign-in failed: ${result.error}`);
+        toast.error(`Google sign-in failed: ${result.error}`, {
+          icon: "❌",
+          style: {
+            color: "#dc2626",
+          },
+        });
         setIsLoading(false);
       }
     } catch (error) {
       console.error('Google sign-in error:', error);
-      toast.error('Failed to sign in with Google. Please try again.');
+      toast.error('Failed to sign in with Google. Please try again.', {
+          icon: "❌",
+          style: {
+            color: "#dc2626",
+          },
+        });
       setIsLoading(false);
     }
   };

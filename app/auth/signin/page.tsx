@@ -39,13 +39,23 @@ export default function SignIn() {
       });
 
       if (result?.error) {
-        toast.error("Invalid credentials. Please try again.");
+        toast.error("Invalid credentials, Please try again...", {
+          icon: "❌",
+          style: {
+            color: "#dc2626",
+          },
+        });
       } else {
         toast.success("Signed in successfully!");
         router.push("/dashboard");
       }
     } catch (error) {
-      toast.error("An error occurred. Please try again.");
+      toast.error("An error occurred. Please try again.", {
+          icon: "❌",
+          style: {
+            color: "#dc2626",
+          },
+        });
     } finally {
       setIsLoading(false);
     }
@@ -64,12 +74,22 @@ export default function SignIn() {
       // Note: With redirect: true, the code below won't execute unless there's an error
       // as the browser will be redirected to the callbackUrl
       if (result?.error) {
-        toast.error(`Google sign-in failed: ${result.error}`);
+        toast.error(`Google sign-in failed: ${result.error}`, {
+          icon: "❌",
+          style: {
+            color: "#dc2626",
+          },
+        });
         setIsLoading(false);
       }
     } catch (error) {
       console.error("Google sign-in error:", error);
-      toast.error("Failed to sign in with Google. Please try again.");
+      toast.error("Failed to sign in with Google. Please try again.", {
+          icon: "❌",
+          style: {
+            color: "#dc2626",
+          },
+        });
       setIsLoading(false);
     }
   };
