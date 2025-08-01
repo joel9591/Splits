@@ -36,20 +36,20 @@ export default function SignIn() {
       const result = await signIn("credentials", {
         email: formData.email,
         password: formData.password,
-        redirect: false,
+        // redirect: false,
+        callbackUrl: "/dashboard",
       });
 
       if (result?.error) {
         toast.error("Invalid credentials. Please try again.");
+        setIsLoading(false);
       } else {
         toast.success("Signed in successfully!");
-        router.push("/dashboard");
+        // router.push("/dashboard");
       }
     } catch (error) {
       toast.error("An error occurred. Please try again.");
-    } finally {
-      setIsLoading(false);
-    }
+    } 
   };
 
   const handleGoogleSignIn = async () => {
@@ -57,8 +57,8 @@ export default function SignIn() {
     try {
       const result = await signIn("google", {
         callbackUrl: "/dashboard",
-        redirect: false,
       });
+      setIsLoading(false);
 
       // Note: With redirect: true, the code below won't execute unless there's an error
       // as the browser will be redirected to the callbackUrl

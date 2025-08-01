@@ -495,6 +495,7 @@ import AddMemberDialog from "@/components/add-member-dialog";
 import AddExpenseDialog from "@/components/add-expense-dialog";
 // import AiTripPlanner from "@/components/ai-trip-planner"; // Ensure this component exists and is correctly implemented
 import { AiTripPlannerButton } from "@/components/animated-login-button"; // Ensure this component exists
+import AiTripPlanner from "@/components/ai-trip-planner";
 
 // --- Interfaces for better type safety ---
 interface DashboardStats {
@@ -676,8 +677,8 @@ export default function Dashboard() {
           <Card className="mb-8 border-2 border-primary/20 shadow-lg">
             <CardContent className="p-0">
               {/* Ensure AiTripPlanner component is imported and functional */}
-              {/* <AiTripPlanner /> */} 
-              <p className="p-4 text-center text-gray-500">AI Trip Planner component would be here.</p>
+              <AiTripPlanner /> 
+              {/* <p className="p-4 text-center text-gray-500">AI Trip Planner component would be here.</p> */}
             </CardContent>
           </Card>
         )}

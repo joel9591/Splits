@@ -54,24 +54,20 @@ export default function SignUp() {
       });
 
       if (response.ok) {
-        toast.success("Account created successfully!");
-        // Automatically sign in the user
-        const result = await signIn("credentials", {
+        toast.success("Account created! Redirecting to dashboard...");
+        // Automatically sign in the user and let NextAuth redirect
+        await signIn("credentials", {
           email: formData.email,
           password: formData.password,
-          redirect: false,
+          callbackUrl: "/dashboard",
         });
-
-        if (result?.ok) {
-          router.push("/dashboard");
-        }
       } else {
         const data = await response.json();
         toast.error(data.message || "Failed to create account");
+        setIsLoading(false);
       }
     } catch (error) {
       toast.error("An error occurred. Please try again.");
-    } finally {
       setIsLoading(false);
     }
   };
