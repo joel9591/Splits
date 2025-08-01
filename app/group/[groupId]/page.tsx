@@ -100,7 +100,12 @@ export default function GroupDetails() {
         setGroup(data);
       } catch (error) {
         console.error("Error fetching group details:", error);
-        toast.error("Failed to load group details");
+        toast.error("Failed to load group details", {
+          icon: "❌",
+          style: {
+            color: "#dc2626",
+          },
+        });
       } finally {
         setLoading(false);
       }

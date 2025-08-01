@@ -525,7 +525,12 @@ export default function AiTripPlanner() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!prompt || !startDate || !endDate || !members || !startLocation || !endLocation || !tripType) {
-      toast.error("Please fill all the details to generate your trip plan.");
+      toast.error("Please fill all the details to generate your trip plan.", {
+          icon: "❌",
+          style: {
+            color: "#dc2626",
+          },
+        });
       return;
     }
     
@@ -571,7 +576,12 @@ export default function AiTripPlanner() {
       toast.success("Your amazing trip plan has been generated and saved!");
     } catch (error: any) {
       console.error("Error generating trip plan:", error);
-      toast.error(error.message || "Failed to generate trip plan.");
+      toast.error(error.message || "Failed to generate trip plan.", {
+          icon: "❌",
+          style: {
+            color: "#dc2626",
+          },
+        });
     } finally {
       setIsLoading(false);
     }
@@ -579,7 +589,12 @@ export default function AiTripPlanner() {
 
   const downloadPdf = () => {
     if (!generatedTrip?.pdfUrl) {
-      toast.error("No PDF available to download.");
+      toast.error("No PDF available to download.", {
+          icon: "❌",
+          style: {
+            color: "#dc2626",
+          },
+        });
       return;
     }
     // The PDF URL is now directly from the saved trip object

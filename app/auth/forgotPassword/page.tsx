@@ -1,22 +1,27 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
-import { toast } from 'sonner';
-import { Calculator, Mail, ArrowRight } from 'lucide-react';
-import { ThemeToggle } from '@/components/theme-toggle';
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { toast } from "sonner";
+import { Calculator, Mail, ArrowRight } from "lucide-react";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 export default function ForgotPassword() {
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   // const [otpSent, setOtpSent] = useState(false);
-
 
   const router = useRouter();
 
@@ -26,22 +31,32 @@ export default function ForgotPassword() {
 
     try {
       // Make a POST request to your backend or API route to handle password reset
-      const res = await fetch('/api/auth/forgotPassword', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const res = await fetch("/api/auth/forgotPassword", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
       });
 
       const data = await res.json();
 
       if (res.ok) {
-        toast.success('OTP sent to your email.');
+        toast.success("OTP sent to your email.");
         router.push(`/auth/verify-otp?email=${email}`);
       } else {
-        toast.error(data.message || 'Failed to send reset email.');
+        toast.error(data.message || "Failed to send reset email.", {
+          icon: "❌",
+          style: {
+            color: "#dc2626",
+          },
+        });
       }
     } catch (error) {
-      toast.error('An error occurred. Please try again.');
+      toast.error("An error occurred. Please try again.", {
+          icon: "❌",
+          style: {
+            color: "#dc2626",
+          },
+        });
     } finally {
       setIsLoading(false);
     }
@@ -61,9 +76,12 @@ export default function ForgotPassword() {
 
         <Card className="border-none shadow-xl">
           <CardHeader className="space-y-1 text-center">
-            <CardTitle className="text-2xl font-bold">Forgot Password?</CardTitle>
+            <CardTitle className="text-2xl font-bold">
+              Forgot Password?
+            </CardTitle>
             <CardDescription>
-              Enter your email address and we’ll send you a OTP to reset your password.
+              Enter your email address and we’ll send you a OTP to reset your
+              password.
             </CardDescription>
           </CardHeader>
 
@@ -101,11 +119,13 @@ export default function ForgotPassword() {
             </form>
 
             <div className="text-center text-sm">
-              <Link href="/auth/signin" className="text-primary hover:underline font-medium">
+              <Link
+                href="/auth/signin"
+                className="text-primary hover:underline font-medium"
+              >
                 Back to Sign In
               </Link>
             </div>
-            
           </CardContent>
         </Card>
       </div>

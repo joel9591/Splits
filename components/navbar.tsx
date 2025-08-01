@@ -13,13 +13,20 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useState } from "react";
+import SignOut from "@/app/auth/signout/page";
 
 export default function Navbar() {
   const { data: session } = useSession();
+   const [showSignout, setShowSignout] = useState(false);
 
   const handleSignOut = () => {
-    signOut({ callbackUrl: "/" });
+    setShowSignout(true);
+    // signOut({ callbackUrl: "/" });
   };
+{if (showSignout) {
+      return <SignOut setsignout = {setShowSignout} />;
+    }}
 
   return (
     <nav className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 sticky top-0 z-50">
@@ -82,5 +89,6 @@ export default function Navbar() {
         </div>
       </div>
     </nav>
+    
   );
 }

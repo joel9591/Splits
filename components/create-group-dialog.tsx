@@ -48,10 +48,20 @@ export default function CreateGroupDialog({ open, onOpenChange, onGroupCreated }
         onGroupCreated();
       } else {
         const data = await response.json();
-        toast.error(data.message || 'Failed to create group');
+        toast.error(data.message || 'Failed to create group', {
+          icon: "❌",
+          style: {
+            color: "#dc2626",
+          },
+        });
       }
     } catch (error) {
-      toast.error('An error occurred. Please try again.');
+      toast.error('An error occurred. Please try again.', {
+          icon: "❌",
+          style: {
+            color: "#dc2626",
+          },
+        });
     } finally {
       setIsLoading(false);
     }

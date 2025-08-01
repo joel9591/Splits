@@ -563,6 +563,7 @@ export default function Dashboard() {
   const [showAddMember, setShowAddMember] = useState(false);
   const [showAddExpense, setShowAddExpense] = useState(false);
   const [showAiTripPlanner, setShowAiTripPlanner] = useState(false);
+ 
 
   // --- Fetch data on component mount or session status change ---
   useEffect(() => {
@@ -636,11 +637,21 @@ export default function Dashboard() {
       } else {
         const errorData = await groupsResponse.json();
         console.error("Groups API error:", errorData);
-        toast.error(`Failed to load groups: ${errorData.message || ''}`);
+        toast.error("Failed to load groups", {
+          icon: "❌",
+          style: {
+            color: "#dc2626",
+          },
+        });
       }
     } catch (error) {
       console.error("Dashboard fetch error:", error);
-      toast.error("Failed to load dashboard data. Please try again.");
+      toast.error("Failed to load dashboard data", {
+          icon: "❌",
+          style: {
+            color: "#dc2626",
+          },
+        });
     } finally {
       setIsLoading(false); // Always set loading to false after attempt
     }

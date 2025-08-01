@@ -35,7 +35,12 @@ export default function SignUp() {
     setIsLoading(true);
 
     if (formData.password !== formData.confirmPassword) {
-      toast.error("Passwords do not match");
+      toast.error('Passwords do not match', {
+          icon: "❌",
+          style: {
+            color: "#dc2626",
+          },
+        });
       setIsLoading(false);
       return;
     }
@@ -63,11 +68,21 @@ export default function SignUp() {
         });
       } else {
         const data = await response.json();
-        toast.error(data.message || "Failed to create account");
-        setIsLoading(false);
+        toast.error(data.message || 'Failed to create account', {
+          icon: "❌",
+          style: {
+            color: "#dc2626",
+          },
+        });
       }
     } catch (error) {
-      toast.error("An error occurred. Please try again.");
+      toast.error('An error occurred. Please try again.', {
+          icon: "❌",
+          style: {
+            color: "#dc2626",
+          },
+        });
+    } finally {
       setIsLoading(false);
     }
   };
@@ -85,23 +100,37 @@ export default function SignUp() {
       // Note: With redirect: true, the code below won't execute unless there's an error
       // as the browser will be redirected to the callbackUrl
       if (result?.error) {
-        toast.error(`Google sign-in failed: ${result.error}`);
+        toast.error(`Google sign-in failed: ${result.error}`, {
+          icon: "❌",
+          style: {
+            color: "#dc2626",
+          },
+        });
         setIsLoading(false);
       }
     } catch (error) {
-      console.error("Google sign-in error:", error);
-      toast.error("Failed to sign in with Google. Please try again.");
+      console.error('Google sign-in error:', error);
+      toast.error('Failed to sign in with Google. Please try again.', {
+          icon: "❌",
+          style: {
+            color: "#dc2626",
+          },
+        });
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center p-2">
+      <div className="w-full max-w-md ">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <Link href="/" className="flex items-center space-x-2">
-            <Calculator className="h-8 w-8 text-primary" />
+        <div className="flex items-center justify-between mb-1">
+          <Link href="/" className="flex items-center space-x-1">
+            <img
+              src="/Splits_logo.png"
+              alt="Logo"
+              className="w-9 h-9 sm:w-9 sm:h-9 md:w-9 md:h-9 "
+            />
             <span className="text-2xl font-bold">Splits</span>
           </Link>
           <ThemeToggle />

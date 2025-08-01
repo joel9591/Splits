@@ -36,10 +36,20 @@ export default function VerifyOtp() {
         toast.success('OTP verified. Please set a new password.');
         router.push(`/auth/reset-password?email=${encodeURIComponent(email!)}`);
       } else {
-        toast.error(data.message || 'OTP verification failed.');
+        toast.error(data.message || 'OTP verification failed.', {
+          icon: "❌",
+          style: {
+            color: "#dc2626",
+          },
+        });
       }
     } catch (err) {
-      toast.error('Something went wrong.');
+      toast.error('Something went wrong.', {
+          icon: "❌",
+          style: {
+            color: "#dc2626",
+          },
+        });
     } finally {
       setIsLoading(false);
     }

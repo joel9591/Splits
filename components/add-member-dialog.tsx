@@ -39,7 +39,12 @@ export default function AddMemberDialog({
 
   const handleSubmit = async () => {
     if (!form.name.trim() || !form.phone.trim() || !form.email.trim()) {
-      toast.error("Name, Phone Number and email are required.");
+      toast.error("Name, Phone Number and email are required.", {
+          icon: "❌",
+          style: {
+            color: "#dc2626",
+          },
+        });
       return;
     }
 
@@ -62,7 +67,12 @@ export default function AddMemberDialog({
         toast.error(data.message || "Failed to add member.");
       }
     } catch (error) {
-      toast.error("Something went wrong.");
+      toast.error("Something went wrong.", {
+          icon: "❌",
+          style: {
+            color: "#dc2626",
+          },
+        });
     } finally {
       setLoading(false);
     }

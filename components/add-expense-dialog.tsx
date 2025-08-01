@@ -60,11 +60,21 @@ export default function AddExpenseDialog({
           setMembers(data.members);
         }
       } else {
-        toast.error("Failed to load group members");
+        toast.error("Failed to load group members", {
+          icon: "❌",
+          style: {
+            color: "#dc2626",
+          },
+        });
       }
     } catch (error) {
       console.error("Error fetching group members:", error);
-      toast.error("An error occurred while loading members");
+      toast.error("An error occurred while loading members", {
+          icon: "❌",
+          style: {
+            color: "#dc2626",
+          },
+        });
     } finally {
       setIsLoading(false);
     }
@@ -80,7 +90,12 @@ export default function AddExpenseDialog({
 
   const handleSubmit = async () => {
     if (!form.paidBy || !form.amount) {
-      toast.error("Paid by and amount are required");
+      toast.error("Paid by and amount are required", {
+          icon: "❌",
+          style: {
+            color: "#dc2626",
+          },
+        });
       return;
     }
 
@@ -99,11 +114,21 @@ export default function AddExpenseDialog({
         onExpenseAdded();
         onOpenChange(false);
       } else {
-        toast.error(data.message || "Failed to add expense.");
+        toast.error(data.message || "Failed to add expense.", {
+          icon: "❌",
+          style: {
+            color: "#dc2626",
+          },
+        });
       }
     } catch (error) {
       console.error("Error adding expense:", error);
-      toast.error("An error occurred while adding the expense");
+      toast.error("An error occurred while adding the expense", {
+          icon: "❌",
+          style: {
+            color: "#dc2626",
+          },
+        });
     }
   };
 
