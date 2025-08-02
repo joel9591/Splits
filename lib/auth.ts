@@ -10,6 +10,9 @@ import { JWT } from "next-auth/jwt"; // Explicit import
 import { GoogleProfile } from "next-auth/providers/google"; // Explicit import for Google profile type
 
 export const authOptions: AuthOptions = {
+  ...( {
+    trustHost: true,
+  } as any ),
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!, // Using ! asserts non-null
@@ -160,6 +163,7 @@ export const authOptions: AuthOptions = {
 
   secret: process.env.NEXTAUTH_SECRET, // MUST be set in production
   // debug: process.env.NODE_ENV === "development", // Uncomment for verbose logs in development
+  
 };
 
 // Extend the session and JWT types for custom properties
