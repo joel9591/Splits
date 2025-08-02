@@ -4,15 +4,7 @@ const nextConfig = {
     ignoreDuringBuilds: true,
   },
   images: { unoptimized: true },
-  output: "standalone",
-  async headers() {
-    return [
-      {
-        source: "/api/auth/:path*",
-        headers: [{ key: "Cache-Control", value: "no-store" }],
-      },
-    ];
-  },
+  output: 'standalone',
 };
 
-export default nextConfig;
+module.exports = nextConfig;

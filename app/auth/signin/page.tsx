@@ -67,7 +67,7 @@ export default function SignIn() {
     setIsLoading(true);
     try {
       const result = await signIn("google", {
-        callbackUrl: "/dashboard",
+        callbackUrl: `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/dashboard`,
       });
       toast.success("Signed in successfully!");
       setIsLoading(false);
