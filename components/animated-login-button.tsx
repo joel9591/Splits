@@ -162,7 +162,7 @@ export default function AnimatedLoginButton({
           backgroundSize: "400% 400%",
         }}
       >
-        <div className="relative z-10 rounded-full bg-white dark:bg-gray-900 px-6 py-2 font-medium transition-all duration-200">
+        <div className="relative z-10 rounded-full  dark:bg-gray-900 px-6 py-1.5 font-medium transition-all duration-200 text-white dark:text-white">
           {children}
         </div>
       </div>

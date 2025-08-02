@@ -69,6 +69,7 @@ export default function SignIn() {
       const result = await signIn("google", {
         callbackUrl: "/dashboard",
       });
+      toast.success("Signed in successfully!");
       setIsLoading(false);
       if (result?.error) {
         toast.error(`Google sign-in failed: ${result.error}`, {

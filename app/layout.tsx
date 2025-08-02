@@ -4,6 +4,7 @@ import { Inter } from 'next/font/google';
 import { ThemeProvider } from '@/components/theme-provider';
 import { Toaster } from '@/components/ui/sonner';
 import { SessionProvider } from '@/components/session-provider';
+import { cn } from '@/lib/utils';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -12,25 +13,16 @@ export const metadata: Metadata = {
   description: 'Split expenses with friends and family easily',
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={inter.className}>
-        <SessionProvider>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
-          >
+      <body className={cn("min-h-screen bg-background font-sans antialiased", inter.style.fontFamily)}>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          <SessionProvider>
             {children}
-            <Toaster />
-          </ThemeProvider>
-        </SessionProvider>
+          </SessionProvider>
+          <Toaster />
+        </ThemeProvider>
       </body>
     </html>
   );

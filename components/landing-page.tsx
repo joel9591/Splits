@@ -42,7 +42,7 @@ export default function LandingPage() {
             <ThemeToggle />
             <AnimatedLoginButton
               href="/auth/signin"
-              className="text-xs px-[1%] py-[3%] shadow-2xl whitespace-nowrap lg:px-[1.2%] lg:py-[2.5%]"
+              className="relative z-10 bg-white dark:bg-gray-900 font-medium transition-all duration-200 text-black dark:text-white text-xs px-[1%] py-[3%] shadow-2xl whitespace-nowrap lg:px-[1.2%] lg:py-[2.5%]"
             >
               Sign In
             </AnimatedLoginButton>
@@ -70,7 +70,7 @@ export default function LandingPage() {
             <Link href="/auth/signup">
               <Button
                 size="lg"
-                className="text-sm sm:text-base px-6 py-2 sm:px-8 sm:py-3"
+                className="text-sm sm:text-base px-6 py-2 sm:px-8 sm:py-3 hover:bg-slate-200 hover:text-black"
               >
                 Start Splitting Now
               </Button>
@@ -79,7 +79,7 @@ export default function LandingPage() {
               <Button
                 variant="outline"
                 size="lg"
-                className="text-sm sm:text-base px-6 py-2 sm:px-8 sm:py-3"
+                className="text-sm sm:text-base px-6 py-2 sm:px-8 sm:py-3  bg-slate-800 text-white"
               >
                 Sign In
               </Button>
