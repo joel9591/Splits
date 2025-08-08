@@ -91,11 +91,11 @@ export default function GroupDetails() {
       try {
         setLoading(true);
         const response = await fetch(`/api/groups/${groupId}`);
-        
+
         if (!response.ok) {
           throw new Error("Failed to fetch group details");
         }
-        
+
         const data = await response.json();
         setGroup(data);
       } catch (error) {
@@ -143,10 +143,8 @@ export default function GroupDetails() {
   };
 
   if (status === "loading" || loading) {
-  return (
-      <LoadingSpinner size="w-24 h-24" />
-  );
-}
+    return <LoadingSpinner size="w-24 h-24" />;
+  }
 
   if (!session) {
     return (
@@ -164,7 +162,9 @@ export default function GroupDetails() {
     return (
       <div className="flex h-screen flex-col items-center justify-center">
         <h1 className="text-2xl font-bold">Group not found</h1>
-        <p className="mt-2">The group you're looking for doesn't exist or you don't have access</p>
+        <p className="mt-2">
+          The group you're looking for doesn't exist or you don't have access
+        </p>
         <Link href="/dashboard">
           <Button className="mt-4">Back to Dashboard</Button>
         </Link>
@@ -186,7 +186,9 @@ export default function GroupDetails() {
         </div>
 
         {group.description && (
-          <p className="mb-6 text-gray-600 dark:text-gray-400">{group.description}</p>
+          <p className="mb-6 text-gray-600 dark:text-gray-400">
+            {group.description}
+          </p>
         )}
 
         <div className="mb-8 grid gap-6 md:grid-cols-4">
@@ -215,7 +217,9 @@ export default function GroupDetails() {
             <CardContent>
               <div className="flex items-center">
                 <Users className="mr-2 h-5 w-5 text-green-500" />
-                <span className="text-2xl font-bold">{group.members.length}</span>
+                <span className="text-2xl font-bold">
+                  {group.members.length}
+                </span>
               </div>
             </CardContent>
           </Card>
@@ -230,7 +234,9 @@ export default function GroupDetails() {
               <div className="flex items-center">
                 <DollarSign className="mr-2 h-5 w-5 text-yellow-500" />
                 <span className="text-2xl font-bold">
-                  {formatCurrency(group.totalExpenses / (group.members.length || 1))}
+                  {formatCurrency(
+                    group.totalExpenses / (group.members.length || 1)
+                  )}
                 </span>
               </div>
             </CardContent>
@@ -279,7 +285,7 @@ export default function GroupDetails() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {group.members.map((member) => 
+                  {group.members.map((member) => (
                     <div
                       key={member.user._id}
                       className="flex items-center justify-between rounded-lg border p-4"
@@ -287,7 +293,10 @@ export default function GroupDetails() {
                       <div className="flex items-center">
                         <Avatar className="h-10 w-10">
                           {member.user.image ? (
-                            <AvatarImage src={member.user.image} alt={member.user.name} />
+                            <AvatarImage
+                              src={member.user.image}
+                              alt={member.user.name}
+                            />
                           ) : (
                             <AvatarFallback>
                               {member.user.name?.charAt(0) || "U"}
@@ -296,16 +305,21 @@ export default function GroupDetails() {
                         </Avatar>
                         <div className="ml-4">
                           <p className="font-medium">{member.user.name}</p>
-                          <p className="text-sm text-gray-500">{member.user.email || ""}</p>
+                          <p className="text-sm text-gray-500">
+                            {member.user.email || ""}
+                          </p>
                         </div>
-                      </div> 
+                      </div>
                       <div className="flex items-center h-full w-full justify-end ">
-                        <Badge className="text-sm font-semibold" variant={member.amount > 0 ? "success" : "secondary"}>
+                        <Badge
+                          className="text-sm font-semibold"
+                          variant={member.amount > 0 ? "success" : "secondary"}
+                        >
                           {formatCurrency(member.amount)}
                         </Badge>
                       </div>
                     </div>
-                  )}
+                  ))}
                 </div>
               </CardContent>
             </Card>
@@ -315,27 +329,27 @@ export default function GroupDetails() {
             <Card>
               <CardHeader>
                 <CardTitle>Expenses</CardTitle>
-                <CardDescription>
-                  All expenses in this group
-                </CardDescription>
+                <CardDescription>All expenses in this group</CardDescription>
               </CardHeader>
               <CardContent>
                 {group.expenses && group.expenses.length > 0 ? (
                   <div className="space-y-4">
                     {group.expenses.map((expense) => (
-                      <div
-                        key={expense._id}
-                        className="rounded-lg border p-4"
-                      >
+                      <div key={expense._id} className="rounded-lg border p-4">
                         <div className="flex items-center justify-between">
                           <div>
-                            <h3 className="font-bold text-xl">{expense.description || "Expense"}</h3>
+                            <h3 className="font-bold text-xl">
+                              {expense.description || "Expense"}
+                            </h3>
                             <p className="text-sm text-gray-500">
                               Paid by {expense.paidBy.name} on{" "}
                               {new Date(expense.createdAt).toLocaleDateString()}
                             </p>
                           </div>
-                          <Badge variant="outline" className="text-sm font-semibold">
+                          <Badge
+                            variant="outline"
+                            className="text-sm font-semibold"
+                          >
                             {formatCurrency(expense.amount)}
                           </Badge>
                         </div>
@@ -366,9 +380,7 @@ export default function GroupDetails() {
             <Card>
               <CardHeader>
                 <CardTitle>Balance Summary</CardTitle>
-                <CardDescription>
-                  Who owes whom in this group
-                </CardDescription>
+                <CardDescription>Who owes whom in this group</CardDescription>
               </CardHeader>
               <CardContent>
                 {group.settlements && group.settlements.length > 0 ? (
@@ -381,26 +393,37 @@ export default function GroupDetails() {
                         <div className="flex items-center">
                           <Avatar className="h-6 w-6">
                             {settlement.from.image ? (
-                              <AvatarImage src={settlement.from.image} alt={settlement.from.name} />
+                              <AvatarImage
+                                src={settlement.from.image}
+                                alt={settlement.from.name}
+                              />
                             ) : (
                               <AvatarFallback>
                                 {settlement.from.name?.charAt(0) || "U"}
                               </AvatarFallback>
                             )}
                           </Avatar>
-                          <div className="text-sm ml-2 font-extrabold"> {settlement.from.name}</div>
-                           
+                          <div className="text-sm ml-2 font-extrabold">
+                            {" "}
+                            {settlement.from.name}
+                          </div>
+
                           <span className="mx-4 text-sm">Should pay to</span>
                           <Avatar className="h-6 w-6">
                             {settlement.to.image ? (
-                              <AvatarImage src={settlement.to.image} alt={settlement.to.name} />
+                              <AvatarImage
+                                src={settlement.to.image}
+                                alt={settlement.to.name}
+                              />
                             ) : (
                               <AvatarFallback>
                                 {settlement.to.name?.charAt(0) || "U"}
                               </AvatarFallback>
                             )}
                           </Avatar>
-                          <div className="text-sm ml-2 mr-4 font-extrabold">{settlement.to.name}</div>
+                          <div className="text-sm ml-2 mr-4 font-extrabold">
+                            {settlement.to.name}
+                          </div>
                         </div>
                         <Badge>{formatCurrency(settlement.amount)}</Badge>
                       </div>
@@ -409,7 +432,9 @@ export default function GroupDetails() {
                 ) : (
                   <div className="flex flex-col items-center justify-center py-12">
                     <DollarSign className="mb-2 h-12 w-12 text-gray-400" />
-                    <h3 className="text-lg font-medium">No balances to settle</h3>
+                    <h3 className="text-lg font-medium">
+                      No balances to settle
+                    </h3>
                     <p className="text-sm text-gray-500">
                       All expenses are settled or no expenses yet
                     </p>

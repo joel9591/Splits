@@ -10,9 +10,6 @@ import { JWT } from "next-auth/jwt"; // Explicit import
 import { GoogleProfile } from "next-auth/providers/google"; // Explicit import for Google profile type
 
 export const authOptions: AuthOptions = {
-  ...( {
-    trustHost: true,
-  } as any ),
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!, // Using ! asserts non-null
@@ -60,6 +57,11 @@ export const authOptions: AuthOptions = {
 
   callbacks: {
     async signIn({ user, account, profile }) {
+      console.log('[Auth] SignIn attempt:', {
+        provider: account?.provider,
+        email: profile?.email || user.email,
+        userId: user.id
+      });
       if (account?.provider === 'google' && profile?.email) {
         await dbConnect(); // Connect to DB for Google sign-in
 
@@ -92,6 +94,10 @@ export const authOptions: AuthOptions = {
     },
 
     async jwt({ token, user, account }) {
+      console.log('[Auth] JWT callback:', {
+        userId: user?.id || token.id,
+        provider: account?.provider || token.provider
+      });
       // Add user ID and provider to JWT token
       if (user) {
         token.id = user.id;
@@ -101,6 +107,11 @@ export const authOptions: AuthOptions = {
     },
 
     async session({ session, token }) {
+      console.log('[Auth] Session callback:', {
+        userId: token.id,
+        provider: token.provider,
+        expires: session.expires
+      });
       // Add ID and provider from JWT token to session
       if (token.id) {
         session.user.id = token.id as string;
@@ -162,8 +173,7 @@ export const authOptions: AuthOptions = {
   },
 
   secret: process.env.NEXTAUTH_SECRET, // MUST be set in production
-  // debug: process.env.NODE_ENV === "development", // Uncomment for verbose logs in development
-  
+  debug: true
 };
 
 // Extend the session and JWT types for custom properties

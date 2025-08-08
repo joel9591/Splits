@@ -29,6 +29,7 @@ export default function SignIn() {
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
+    console.log('[SignIn] Form submission started');
     e.preventDefault();
     setIsLoading(true);
 
@@ -37,6 +38,11 @@ export default function SignIn() {
         email: formData.email,
         password: formData.password,
         redirect: false,
+      });
+      console.log('[SignIn] SignIn result:', {
+        ok: result?.ok,
+        error: result?.error,
+        status: result?.status
       });
 
       if (result?.ok) {
@@ -53,6 +59,7 @@ export default function SignIn() {
         setIsLoading(false);
       }
     } catch (error) {
+      console.error('[SignIn] Error:', error);
       toast.error("An unexpected error occurred. Please try again.", {
         icon: "❌",
         style: {
@@ -64,10 +71,11 @@ export default function SignIn() {
   };
 
   const handleGoogleSignIn = async () => {
+    console.log('[SignIn] Google signin started');
     setIsLoading(true);
     try {
       const result = await signIn("google", {
-        callbackUrl: `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/dashboard`,
+        callbackUrl: "/dashboard",
       });
       toast.success("Signed in successfully!");
       setIsLoading(false);

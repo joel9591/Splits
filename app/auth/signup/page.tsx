@@ -64,7 +64,7 @@ export default function SignUp() {
         await signIn("credentials", {
           email: formData.email,
           password: formData.password,
-          callbackUrl: `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/dashboard`,
+          callbackUrl: "/dashboard",
         });
       } else {
         const data = await response.json();
@@ -93,7 +93,7 @@ export default function SignUp() {
       // The callbackUrl is where the user will be redirected after successful authentication
       // The redirect: true ensures the browser handles the redirect
       const result = await signIn("google", {
-        callbackUrl: `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/dashboard`,
+        callbackUrl: "/dashboard",
         redirect: true,
       });
 

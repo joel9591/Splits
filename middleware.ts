@@ -46,10 +46,30 @@
 
 // middleware.ts  ✅ simplified
 import { withAuth } from 'next-auth/middleware';
+import { NextResponse } from 'next/server';
+
+// export default withAuth({
+//   callbacks: {
+//     authorized: ({ token }) => !!token,
+//   },
+// });
+
 
 export default withAuth({
   callbacks: {
-    authorized: ({ token }) => !!token,
+    authorized: ({ token, req }) => {
+      console.log('[Middleware] Auth check:', {
+        path: req.nextUrl.pathname,
+        hasToken: !!token,
+        tokenAge: token ? Math.floor(Date.now() / 1000) - (token.iat as number) : null
+      });
+      
+      if (!token) {
+        console.log('[Middleware] Redirecting to signin:', req.nextUrl.pathname);
+      }
+      
+      return !!token;
+    },
   },
 });
 
