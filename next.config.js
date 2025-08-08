@@ -5,6 +5,20 @@ const nextConfig = {
   },
   images: { unoptimized: true },
   output: 'standalone',
+  // Add this for auth to work properly
+  async headers() {
+    return [
+      {
+        source: '/(.*)',
+        headers: [
+          {
+            key: 'x-middleware-rewrite',
+            value: '/',
+          },
+        ],
+      },
+    ];
+  },
 };
 
-module.exports = nextConfig;
+export default nextConfig;

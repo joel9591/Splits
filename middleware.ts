@@ -1,83 +1,40 @@
-// import { withAuth } from 'next-auth/middleware';
-// import { NextResponse } from 'next/server';
-// import { getToken } from 'next-auth/jwt';
-
-// export default withAuth(
-//   async function middleware(req) {
-//     const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
-    
-//     // Check token age and reject if too old (1 hour)
-//     if (token) {
-//       const tokenAge = Math.floor(Date.now() / 1000) - (token.iat as number);
-//       if (tokenAge > 60 * 60) { // 1 hour in seconds
-//         return NextResponse.redirect(new URL('/auth/signin', req.url));
-//       }
-//     }
-    
-//     // Add security headers
-//     const response = NextResponse.next();
-    
-//     // Security headers
-//     response.headers.set('X-Frame-Options', 'DENY');
-//     response.headers.set('X-Content-Type-Options', 'nosniff');
-//     response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
-//     response.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()'); 
-    
-//     return response;
-//   },
-//   {
-//     callbacks: {
-//       authorized: ({ token }) => !!token,
-//     },
-//   }
-// );
-
-// export const config = {
-//   matcher: [
-//     '/dashboard/:path*', 
-//     '/group/:path*', 
-//     '/api/groups/:path*', 
-//     '/api/dashboard/:path*',
-//     '/api/expenses/:path*'
-//   ],
-// };
-
-
-
-// middleware.ts  ✅ simplified
 import { withAuth } from 'next-auth/middleware';
 import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
+import type { NextRequestWithAuth } from 'next-auth/middleware'; // ✅ import this
 
-// export default withAuth({
-//   callbacks: {
-//     authorized: ({ token }) => !!token,
-//   },
-// });
+const middleware = withAuth(
+  function middleware(req: NextRequestWithAuth) {
+    const token = req.nextauth.token; // ✅ no TS error now
 
+    console.log('[Middleware] Auth check:', {
+      path: req.nextUrl.pathname,
+      hasToken: !!token,
+      tokenAge: token ? Math.floor(Date.now() / 1000) - (token.iat as number) : null,
+    });
 
-export default withAuth({
-  callbacks: {
-    authorized: ({ token, req }) => {
-      console.log('[Middleware] Auth check:', {
-        path: req.nextUrl.pathname,
-        hasToken: !!token,
-        tokenAge: token ? Math.floor(Date.now() / 1000) - (token.iat as number) : null
-      });
-      
-      if (!token) {
-        console.log('[Middleware] Redirecting to signin:', req.nextUrl.pathname);
-      }
-      
-      return !!token;
-    },
+    if (!token) {
+      const url = new URL('/auth/signin', req.nextUrl.origin);
+      url.searchParams.set('callbackUrl', req.nextUrl.pathname);
+      console.log('[Middleware] Redirecting to signin:', req.nextUrl.pathname);
+      return NextResponse.redirect(url);
+    }
+
+    return NextResponse.next();
   },
-});
+  {
+    callbacks: {
+      authorized: ({ token }) => !!token,
+    },
+  }
+);
+
+export default middleware;
 
 export const config = {
   matcher: [
     '/dashboard/:path*',
     '/group/:path*',
-    // API routes that require auth
     '/api/(dashboard|groups|expenses)/:path*',
   ],
 };

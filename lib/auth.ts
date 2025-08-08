@@ -153,18 +153,19 @@ export const authOptions: AuthOptions = {
   },
 
   cookies: {
-    // Default cookie configuration is usually sufficient, but explicit is fine
-    sessionToken: {
-      name: `next-auth.session-token`,
-      options: {
-        httpOnly: true,
-        sameSite: 'lax',
-        path: '/',
-        secure: process.env.NODE_ENV === 'production',
-        maxAge: 5 * 60 * 60 // Max age for the cookie
-      },
+  sessionToken: {
+    name: `__Secure-next-auth.session-token`,
+    options: {
+      httpOnly: true,
+      sameSite: 'lax',
+      path: '/',
+      secure: true, // Always true in production
+      domain: process.env.NODE_ENV === 'production' 
+        ? '.splits-kappa.vercel.app' 
+        : undefined,
     },
   },
+},
 
   pages: {
     signIn: "/auth/signin",
