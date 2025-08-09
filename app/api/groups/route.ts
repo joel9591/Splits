@@ -29,18 +29,15 @@ export async function GET() {
       .populate('createdBy', 'name email')
       .sort({ createdAt: -1 });
 
-    // ✅ Transform the response and filter out null/invalid members
     const transformedGroups = groups.map(group => {
       const groupObj = group.toObject();
       
-      // Format the createdBy field
       const formattedCreatedBy = groupObj.createdBy ? {
         _id: groupObj.createdBy._id,
         name: groupObj.createdBy.name,
         email: groupObj.createdBy.email
       } : null;
       
-      // Format and filter members
       const formattedMembers = groupObj.members
         .filter((member: any) => member.user !== null && member.user !== undefined)
         .map((member: any) => ({
@@ -58,7 +55,7 @@ export async function GET() {
         ...groupObj,
         createdBy: formattedCreatedBy,
         members: formattedMembers,
-        memberCount: formattedMembers.length // Add member count for easy display
+        memberCount: formattedMembers.length
       };
     });
 
@@ -82,14 +79,11 @@ export async function POST(req: NextRequest) {
     }
 
     await connectDB();
-
-    // First create the group
     const newGroup = await Group.create({
       name,
       description,
       createdBy: session.user.id,
       members: [
-        // Add the creator as the first member
         {
           user: session.user.id,
           amount: 0,
@@ -101,7 +95,6 @@ export async function POST(req: NextRequest) {
       createdAt: new Date()
     });
 
-    // ✅ Add this group to the User model
     await User.findByIdAndUpdate(session.user.id, {
       $push: { groups: newGroup._id },
     });

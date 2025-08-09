@@ -4,16 +4,15 @@ const nextConfig = {
     ignoreDuringBuilds: true,
   },
   images: { unoptimized: true },
-  output: 'standalone',
-  // Add this for auth to work properly
+  output: "standalone",
   async headers() {
     return [
       {
-        source: '/(.*)',
+        source: "/(.*)",
         headers: [
           {
-            key: 'x-middleware-rewrite',
-            value: '/',
+            key: "x-middleware-rewrite",
+            value: "/",
           },
         ],
       },
@@ -21,4 +20,4 @@ const nextConfig = {
   },
 };
 
-export default nextConfig;
+module.exports = nextConfig;

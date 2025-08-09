@@ -43,7 +43,6 @@ export default function AddExpenseDialog({
   const [members, setMembers] = useState<Member[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Fetch group members when dialog opens
   useEffect(() => {
     if (open && groupId) {
       fetchGroupMembers();
@@ -110,7 +109,7 @@ export default function AddExpenseDialog({
 
       if (res.ok) {
         toast.success("Expense added successfully!");
-        setForm({ paidBy: "", amount: "", description: "" }); // Reset form
+        setForm({ paidBy: "", amount: "", description: "" }); 
         onExpenseAdded();
         onOpenChange(false);
       } else {

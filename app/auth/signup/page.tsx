@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
-import { Calculator, Mail, Lock, User, ArrowRight } from "lucide-react";
+import { Mail, Lock, User, ArrowRight } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
 
 export default function SignUp() {
@@ -35,12 +35,12 @@ export default function SignUp() {
     setIsLoading(true);
 
     if (formData.password !== formData.confirmPassword) {
-      toast.error('Passwords do not match', {
-          icon: "❌",
-          style: {
-            color: "#dc2626",
-          },
-        });
+      toast.error("Passwords do not match", {
+        icon: "❌",
+        style: {
+          color: "#dc2626",
+        },
+      });
       setIsLoading(false);
       return;
     }
@@ -60,7 +60,6 @@ export default function SignUp() {
 
       if (response.ok) {
         toast.success("Account created! Redirecting to dashboard...");
-        // Automatically sign in the user and let NextAuth redirect
         await signIn("credentials", {
           email: formData.email,
           password: formData.password,
@@ -68,7 +67,7 @@ export default function SignUp() {
         });
       } else {
         const data = await response.json();
-        toast.error(data.message || 'Failed to create account', {
+        toast.error(data.message || "Failed to create account", {
           icon: "❌",
           style: {
             color: "#dc2626",
@@ -76,12 +75,12 @@ export default function SignUp() {
         });
       }
     } catch (error) {
-      toast.error('An error occurred. Please try again.', {
-          icon: "❌",
-          style: {
-            color: "#dc2626",
-          },
-        });
+      toast.error("An error occurred. Please try again.", {
+        icon: "❌",
+        style: {
+          color: "#dc2626",
+        },
+      });
     } finally {
       setIsLoading(false);
     }
@@ -90,15 +89,15 @@ export default function SignUp() {
   const handleGoogleSignIn = async () => {
     setIsLoading(true);
     try {
-      // The callbackUrl is where the user will be redirected after successful authentication
-      // The redirect: true ensures the browser handles the redirect
       const result = await signIn("google", {
         callbackUrl: "/dashboard",
         redirect: true,
       });
+      toast.success("Signed in with Google successfully! 🎉", {
+        icon: "✅",
+        style: { color: "#16a34a" },
+      });
 
-      // Note: With redirect: true, the code below won't execute unless there's an error
-      // as the browser will be redirected to the callbackUrl
       if (result?.error) {
         toast.error(`Google sign-in failed: ${result.error}`, {
           icon: "❌",
@@ -109,13 +108,13 @@ export default function SignUp() {
         setIsLoading(false);
       }
     } catch (error) {
-      console.error('Google sign-in error:', error);
-      toast.error('Failed to sign in with Google. Please try again.', {
-          icon: "❌",
-          style: {
-            color: "#dc2626",
-          },
-        });
+      console.error("Google sign-in error:", error);
+      toast.error("Failed to sign in with Google. Please try again.", {
+        icon: "❌",
+        style: {
+          color: "#dc2626",
+        },
+      });
       setIsLoading(false);
     }
   };
@@ -123,7 +122,6 @@ export default function SignUp() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center p-2">
       <div className="w-full max-w-md ">
-        {/* Header */}
         <div className="flex items-center justify-between mb-1">
           <Link href="/" className="flex items-center space-x-1">
             <img
@@ -153,7 +151,7 @@ export default function SignUp() {
               disabled={isLoading}
             >
               <img src="/Google_logo.png" className="w-4 h-4 mr-1" />
-              Continue with Google
+              Signup with Google
             </Button>
 
             <div className="relative">

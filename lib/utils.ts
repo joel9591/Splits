@@ -24,12 +24,10 @@ export function calculateBalances(expenses: any[], userId: string) {
       const splitUserId = split.user.toString();
       
       if (expense.paidBy.toString() === userId) {
-        // User paid, so others owe them
         if (splitUserId !== userId) {
           balances[splitUserId] = (balances[splitUserId] || 0) - split.amount;
         }
       } else if (splitUserId === userId) {
-        // User owes the person who paid
         const paidByUserId = expense.paidBy.toString();
         balances[paidByUserId] = (balances[paidByUserId] || 0) + split.amount;
       }

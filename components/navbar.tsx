@@ -3,7 +3,7 @@
 import { useSession, signOut } from "next-auth/react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Calculator, LogOut, User, Settings } from "lucide-react";
+import { LogOut, User, Settings } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import {
   DropdownMenu,
@@ -24,17 +24,16 @@ export default function Navbar() {
     setShowSignout(true);
   };
 
-  // Add effect to disable scrolling when logout component is shown
   useEffect(() => {
     if (showSignout) {
-      // Disable scrolling
+      
       document.body.style.overflow = "hidden";
     } else {
-      // Re-enable scrolling
+      
       document.body.style.overflow = "auto";
     }
 
-    // Cleanup on unmount
+    
     return () => {
       document.body.style.overflow = "auto";
     };
@@ -43,11 +42,6 @@ export default function Navbar() {
   return (
     <>
       {showSignout && (
-        // <div className="fixed inset-0 z-50 bg-black/30 flex items-center justify-center blur-background">
-        //   <div className="no-blur">
-        //     <Logout setsignout={setShowSignout} />
-        //   </div>
-        // </div>
         <div className="fixed inset-0 z-50 flex items-start justify-center pt-[20vh] bg-black/30">
           <div className="relative z-[60] max-w-md w-full">
             <Logout setsignout={setShowSignout} />

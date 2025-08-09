@@ -14,7 +14,6 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
 import {
   Users,
   Receipt,
@@ -123,7 +122,6 @@ export default function GroupDetails() {
   };
 
   const handleMemberAdded = async () => {
-    // Refresh group data
     const response = await fetch(`/api/groups/${groupId}`);
     if (response.ok) {
       const data = await response.json();
@@ -133,7 +131,6 @@ export default function GroupDetails() {
   };
 
   const handleExpenseAdded = async () => {
-    // Refresh group data
     const response = await fetch(`/api/groups/${groupId}`);
     if (response.ok) {
       const data = await response.json();

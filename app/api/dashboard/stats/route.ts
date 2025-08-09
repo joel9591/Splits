@@ -52,11 +52,10 @@ interface LeanPopulatedExpense {
     isPaid: boolean;
   }[];
   category?: string;
-  createdAt: Date; // Mongoose timestamps are Date objects
-  updatedAt: Date; // Mongoose timestamps are Date objects
-  __v?: number; // Mongoose version key
+  createdAt: Date; 
+  updatedAt: Date;
+  __v?: number; 
 }
-// --- End of interfaces ---
 
 
 export async function GET() {
@@ -70,7 +69,6 @@ export async function GET() {
 
     await connectDB();
 
-    // Explicitly type the result of find().populate().lean() using the new interfaces
     const groups: LeanPopulatedGroup[] = await GroupModel.find({
       isActive: true,
       $or: [
@@ -81,18 +79,17 @@ export async function GET() {
       path: 'members.user',
       model: 'User',
       select: '_id name email image'
-    }).lean() as LeanPopulatedGroup[]; // No 'as unknown as' needed if interfaces are precise
+    }).lean() as LeanPopulatedGroup[];
 
     const groupIds = groups.map(group => group._id.toString());
 
-    // Explicitly type the result of find().populate().lean() using the new interfaces
     const expenses: LeanPopulatedExpense[] = await ExpenseModel.find({
       group: { $in: groupIds },
     }).populate({
       path: 'paidBy',
       model: 'User',
       select: '_id name email image'
-    }).lean() as LeanPopulatedExpense[]; // No 'as unknown as' needed if interfaces are precise
+    }).lean() as LeanPopulatedExpense[]; 
 
     const totalGroups = groups.length;
 
@@ -105,10 +102,7 @@ export async function GET() {
     let totalOwedByUserToOthers = 0;
 
     groups.forEach(group => {
-      // Both exp.group and group._id are strings after .lean()
       const groupExpenses = expenses.filter(exp => exp.group === group._id.toString());
-      
-      // The `m` here is `PopulatedGroupMember`, so `m.user` is `User` type.
       const userInGroupMembers = group.members.find(
         (m) => m.user && m.user._id && m.user._id.toString() === session.user.id
       );

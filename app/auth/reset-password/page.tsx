@@ -14,7 +14,6 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 import { toast } from "sonner";
-import { Calculator } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
 
 export default function ResetPassword() {

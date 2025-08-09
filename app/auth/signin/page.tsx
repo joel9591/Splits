@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
-import { Calculator, Mail, Lock, ArrowRight } from "lucide-react";
+import { Mail, Lock, ArrowRight } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
 
 export default function SignIn() {
@@ -103,10 +103,8 @@ export default function SignIn() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center p-4">
       <div className="w-full max-w-md overflow-hidden">
-        {/* Header */}
         <div className="flex items-center justify-between mb-2">
           <Link href="/" className="flex items-center space-x-1">
-            {/* <Calculator className="h-8 w-8 text-primary" /> */}
             <img
               src="/Splits_logo.png"
               alt="Logo"
@@ -132,7 +130,7 @@ export default function SignIn() {
               disabled={isLoading}
             >
               <img src="/Google_logo.png" className="w-4 h-4 mr-1" />
-              Continue with Google
+              Login with Google
             </Button>
 
             <div className="relative">

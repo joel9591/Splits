@@ -1,7 +1,6 @@
-// I:\New folder-Splits\lib\types.ts
-import { Document, Types } from 'mongoose'; // Import Document and Types from mongoose
+import { Document, Types } from 'mongoose'; 
 
-// --- User Interface ---
+
 export interface IUser extends Document {
   _id: Types.ObjectId;
   name: string;
@@ -18,7 +17,7 @@ export interface IUser extends Document {
   resetTokenExpiry?: number;
 }
 
-// --- Group Member Interfaces ---
+
 export interface IGroupMemberUnpopulated {
   user: Types.ObjectId;
   amount: number;
@@ -31,7 +30,7 @@ export interface IGroupMemberPopulated {
   joinedAt: Date;
 }
 
-// --- Group Interface ---
+
 export interface IGroup extends Document {
   _id: Types.ObjectId;
   name: string;
@@ -45,7 +44,7 @@ export interface IGroup extends Document {
   updatedAt: Date;
 }
 
-// --- Expense Interfaces ---
+
 export interface ISplitDetail {
   user: Types.ObjectId;
   amount: number;
@@ -66,7 +65,7 @@ export interface IExpense extends Document {
 }
 
 
-// --- Trip Plan Core Structure (shared by client and document) ---
+
 export interface PlaceToVisit {
   name: string;
   description: string;
@@ -90,7 +89,7 @@ export interface FuelStop {
   location: string;
 }
 
-export interface TripPlan { // This remains the base structure for the plan details
+export interface TripPlan { 
   tripTitle: string;
   placesToVisit: PlaceToVisit[];
   hotelsOnTheWay: HotelOption[];
@@ -99,36 +98,32 @@ export interface TripPlan { // This remains the base structure for the plan deta
   estimatedCost: string;
 }
 
-// ITripDocument: For your Mongoose Trip Model (backend only)
+
 export interface ITripDocument extends Document, TripPlan {
-  _id: Types.ObjectId; // MongoDB auto-generated ID, as ObjectId
-  createdBy: Types.ObjectId; // User ID, as ObjectId
+  _id: Types.ObjectId; 
+  createdBy: Types.ObjectId; 
   pdfUrl: string;
-  createdAt: Date; // Mongoose timestamps add these as Date objects
-  updatedAt: Date; // Mongoose timestamps add these as Date objects
+  createdAt: Date; 
+  updatedAt: Date; 
 }
 
-// ITripClient: For your frontend components (what the API sends as JSON)
-export interface ITripClient extends TripPlan { // Does NOT extend Document
-  _id: string; // MongoDB ID as a string (from JSON)
-  createdBy: string; // User ID as a string (from JSON)
+
+export interface ITripClient extends TripPlan { 
+  _id: string; 
+  createdBy: string; 
   pdfUrl: string;
-  createdAt: string; // Dates as ISO strings from JSON
-  updatedAt: string; // Dates as ISO strings from JSON
+  createdAt: string; 
+  updatedAt: string; 
 }
 
-// Response structure from generate-trip API
-// This represents the full JSON response your frontend receives
+
 export interface ApiResponse {
-  tripPlan: TripPlan; // The core AI-generated plan structure
-  pdfId: string; // The UUID for the PDF file
-  pdfUrl: string; // The full public URL to the PDF
-  _id: string; // The ID of the saved trip in the database (as a string)
-  createdBy: string; // The createdBy user ID (as a string)
-  createdAt: string; // The creation timestamp (as an ISO string)
-  updatedAt: string; // The last update timestamp (as an ISO string)
+  tripPlan: TripPlan; 
+  pdfId: string; 
+  pdfUrl: string; 
+  _id: string; 
+  createdBy: string; 
+  createdAt: string; 
+  updatedAt: string; 
 }
 
-// You can remove your `IMember` interface from here if it's only in `models/Member.ts`
-// If it's used elsewhere in shared types, keep it but ensure consistency.
-// The `models/Member.ts` content you provided is fine as a model definition.

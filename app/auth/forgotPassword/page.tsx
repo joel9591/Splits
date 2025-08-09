@@ -13,15 +13,13 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
-import { Calculator, Mail, ArrowRight } from "lucide-react";
+import { Mail, ArrowRight } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  // const [otpSent, setOtpSent] = useState(false);
 
   const router = useRouter();
 
@@ -30,7 +28,6 @@ export default function ForgotPassword() {
     setIsLoading(true);
 
     try {
-      // Make a POST request to your backend or API route to handle password reset
       const res = await fetch("/api/auth/forgotPassword", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -65,7 +62,6 @@ export default function ForgotPassword() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        {/* Header */}
         <div className="flex items-center justify-between mb-2">
           <Link href="/" className="flex items-center space-x-1">
             <img

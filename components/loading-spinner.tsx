@@ -1,13 +1,10 @@
-
-// I:\New folder-Splits\components\LoadingSpinner.tsx
-"use client"; // If this component is used in a Client Component
+"use client";
 
 import React from 'react';
 
 export default function LoadingSpinner({ size }: { size: string }) {
   console.log("loader is loading");
   return (
-    // Added a style block for the custom animations
     <>
       <style jsx>{`
         @keyframes spin-fast {
@@ -51,16 +48,13 @@ export default function LoadingSpinner({ size }: { size: string }) {
       `}</style>
 
       <div className="w-full lg:w-full flex flex-col items-center justify-center min-h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 space-y-6">
-        {/* Spinner */}
-        {/* Corrected syntax: template literal inside curly braces */}
         <div className={`${size} relative w-24 h-24`}> 
           <div className="absolute inset-0 border-4 border-dashed border-blue-500 rounded-full animate-spin-fast"></div>
           <div className="absolute inset-4 border-4 border-dotted border-purple-500 rounded-full animate-reverse-spin"></div>
         </div>
 
-        {/* Animated Text */}
         <div className="flex space-x-1 text-2xl font-bold text-gray-700 dark:text-gray-300">
-          {"Splitting...".split("").map((letter, index) => ( // Changed text to "Loading..."
+          {"Splitting...".split("").map((letter, index) => (
             <span
               key={index}
               className={`animate-bounce-letter`}

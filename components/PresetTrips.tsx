@@ -565,7 +565,7 @@ export default function PresetTrips() {
                 {trip.description}
               </CardDescription>
             </CardHeader>
-            <CardContent className="p-4 pt-0">
+            <CardContent className="">
               <Button
                 variant="outline"
                 className="w-full border-indigo-500 text-indigo-600 hover:bg-gray-700 hover:text-indigo-200 transition-colors duration-200"

@@ -1,4 +1,3 @@
-// models/Group.ts
 import mongoose from 'mongoose';
 
 const GroupSchema = new mongoose.Schema({

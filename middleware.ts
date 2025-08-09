@@ -1,11 +1,10 @@
 import { withAuth } from 'next-auth/middleware';
 import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
-import type { NextRequestWithAuth } from 'next-auth/middleware'; // ✅ import this
+import type { NextRequestWithAuth } from 'next-auth/middleware'; 
 
 const middleware = withAuth(
   function middleware(req: NextRequestWithAuth) {
-    const token = req.nextauth.token; // ✅ no TS error now
+    const token = req.nextauth.token; 
 
     console.log('[Middleware] Auth check:', {
       path: req.nextUrl.pathname,

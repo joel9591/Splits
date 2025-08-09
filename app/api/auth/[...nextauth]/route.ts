@@ -1,7 +1,6 @@
 import NextAuth from 'next-auth';
-import { authOptions } from '@/lib/auth'; // Ensure this path is correct
+import { authOptions } from '@/lib/auth';
 
 const handler = NextAuth(authOptions);
 
-// Export GET and POST handlers for NextAuth.js
 export { handler as GET, handler as POST };

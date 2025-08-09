@@ -9,21 +9,18 @@ import { authOptions } from "@/lib/auth";
 export async function GET(req: NextRequest, { params }: { params: { groupId: string } }) {
   await dbConnect();
   
-  // Get the current session to verify authorization
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
   
   try {
-    // Find the group and verify user is a member
     const group = await Group.findById(params.groupId);
     
     if (!group) {
       return NextResponse.json({ message: "Group not found" }, { status: 404 });
     }
     
-    // Verify the current user is the group creator or a member
     const isAuthorized = 
       group.createdBy.toString() === session.user.id ||
       group.members.some((m: any) => m.user.toString() === session.user.id);
@@ -32,14 +29,13 @@ export async function GET(req: NextRequest, { params }: { params: { groupId: str
       return NextResponse.json({ message: "Not authorized to view expenses for this group" }, { status: 403 });
     }
 
-    // Get all expenses for this group with populated user details
     const expenses = await Expense.find({ group: params.groupId })
       .populate({
         path: "paidBy",
         model: "User",
         select: "_id name email image"
       })
-      .sort({ createdAt: -1 }); // Most recent first
+      .sort({ createdAt: -1 });
     
     return NextResponse.json(expenses);
   } catch (err) {
@@ -51,7 +47,6 @@ export async function GET(req: NextRequest, { params }: { params: { groupId: str
 export async function POST(req: NextRequest, { params }: { params: { groupId: string } }) {
   await dbConnect();
   
-  // Get the current session to verify authorization
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
@@ -64,7 +59,6 @@ export async function POST(req: NextRequest, { params }: { params: { groupId: st
   }
 
   try {
-    // Find the group and populate members.user to get user details
     const group = await Group.findById(params.groupId).populate({
       path: "members.user",
       model: "User",
@@ -75,7 +69,6 @@ export async function POST(req: NextRequest, { params }: { params: { groupId: st
       return NextResponse.json({ message: "Group not found" }, { status: 404 });
     }
     
-    // Verify the current user is the group creator or a member
     const isAuthorized = 
       group.createdBy.toString() === session.user.id ||
       group.members.some((m: any) => m.user._id.toString() === session.user.id);
@@ -84,7 +77,6 @@ export async function POST(req: NextRequest, { params }: { params: { groupId: st
       return NextResponse.json({ message: "Not authorized to add expenses to this group" }, { status: 403 });
     }
 
-    // Find the member who paid for the expense
     const memberEntry = group.members.find(
       (m: any) => m.user && m.user.name && m.user.name.toLowerCase() === paidBy.trim().toLowerCase()
     );
@@ -96,7 +88,6 @@ export async function POST(req: NextRequest, { params }: { params: { groupId: st
     const memberId = memberEntry.user._id;
     const numericAmount = parseFloat(amount);
 
-    // Create expense with split details
     const expense = await Expense.create({
       description,
       amount: numericAmount,
@@ -106,12 +97,11 @@ export async function POST(req: NextRequest, { params }: { params: { groupId: st
       splitDetails: group.members.map((member: any) => ({
         user: member.user._id,
         amount: numericAmount / group.members.length,
-        isPaid: member.user._id.toString() === memberId.toString() // Paid for the person who created the expense
+        isPaid: member.user._id.toString() === memberId.toString() 
       })),
       createdAt: new Date()
     });
 
-    // Update member's amount directly in the group document
     const memberIndex = group.members.findIndex(
       (m: any) => m.user._id.toString() === memberId.toString()
     );
@@ -120,7 +110,6 @@ export async function POST(req: NextRequest, { params }: { params: { groupId: st
       group.members[memberIndex].amount += numericAmount;
     }
 
-    // Update group
     group.expenses.push(expense._id);
     group.totalExpenses += numericAmount;
     await group.save();
