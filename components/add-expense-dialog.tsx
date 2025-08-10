@@ -108,7 +108,8 @@ export default function AddExpenseDialog({
       const data = await res.json();
 
       if (res.ok) {
-        toast.success("Expense added successfully!");
+        // Remove this toast since the parent component will show it
+        // toast.success("Expense added successfully!");
         setForm({ paidBy: "", amount: "", description: "" }); 
         onExpenseAdded();
         onOpenChange(false);

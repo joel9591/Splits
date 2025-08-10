@@ -3,8 +3,9 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { PDFDocument, rgb, StandardFonts } from "pdf-lib";
-import { promises as fs } from "fs";
-import path from "path";
+// Remove fs import as we won't be writing to disk
+// import { promises as fs } from "fs";
+// import path from "path";
 import { v4 as uuidv4 } from "uuid";
 import connectDB from '@/lib/mongodb';
 import Trip from "@/models/Trip";
@@ -36,10 +37,24 @@ export async function POST(req: NextRequest) {
       startLocation,
       endLocation,
       tripType,
+      budget,
+      customBudgetAmount,
     } = body;
 
-    if (!prompt || !startDate || !endDate || !members || !startLocation || !endLocation || !tripType) {
+    if (!prompt || !startDate || !endDate || !members || !startLocation || !endLocation || !tripType || !budget) {
       return NextResponse.json({ error: "Missing required trip details." }, { status: 400 });
+    }
+
+    // Add budget information to the prompt
+    let budgetInfo = "";
+    if (budget === "low") {
+      budgetInfo = "This is a low budget trip. Please suggest economical options.";
+    } else if (budget === "medium") {
+      budgetInfo = "This is a medium budget trip. Please suggest moderately priced options.";
+    } else if (budget === "high") {
+      budgetInfo = "This is a high budget trip. Please suggest premium options.";
+    } else if (budget === "custom") {
+      budgetInfo = `This trip has a custom budget of Rs. ${customBudgetAmount}. Please suggest options within this budget.`;
     }
 
     const detailedPrompt = `
@@ -52,8 +67,9 @@ export async function POST(req: NextRequest) {
       - End Date: ${endDate}
       - Number of People: ${members}
       - Trip Type: ${tripType}
+      - Budget: ${budgetInfo}
 
-      Your response MUST be a valid JSON object. Do not include any text before or after the JSON object.
+      Your response MUST be a valid JSON object. Return EXACTLY 10 items for each category: placesToVisit, hotelsOnTheWay, restaurantsOnTheWay, fuelStopsOnTheWay. Do not include any text before or after the JSON object.
       The JSON object must follow this exact structure:
       {
         "tripTitle": "A creative and catchy title for the trip, like 'An Adventurous 5-Day Journey from Mumbai to Goa'",
@@ -61,8 +77,7 @@ export async function POST(req: NextRequest) {
           {
             "name": "Name of the tourist place",
             "description": "A brief, engaging description (2-3 sentences).",
-            "link": "A valid Google Maps URL for the location.",
-            "photoUrl": "A valid, publicly accessible URL for a high-quality photo of the place."
+            "link": "A valid Google Maps URL for the location."
           }
         ],
         "hotelsOnTheWay": [
@@ -87,7 +102,7 @@ export async function POST(req: NextRequest) {
         "estimatedCost": "A total estimated cost for the trip in INR for ${members} people, including travel, food, and accommodation. Provide it as a string, like 'Rs. 50,000 - Rs. 60,000'."
       }
 
-      Provide at least 3-4 places to visit, 2-3 hotel options, 3 restaurant suggestions, and 2 fuel stops. Ensure all provided URLs (links and photoUrls) are valid and working.
+      IMPORTANT: DO NOT include any photoUrl fields in the response. Do not include any image URLs.
     `;
 
     const result = await model.generateContent(detailedPrompt);
@@ -122,19 +137,21 @@ export async function POST(req: NextRequest) {
             price: hotel.price.replace(/₹/g, 'Rs. ')
         }));
 
+        // Remove any photoUrl fields if they exist
+        if (tripPlan.placesToVisit) {
+          tripPlan.placesToVisit = tripPlan.placesToVisit.map(place => {
+            const { photoUrl, ...rest } = place;
+            return rest;
+          });
+        }
+
     } catch (parseError) {
         console.error("Failed to parse Gemini response:", parseError);
         console.error("Raw response from Gemini:", responseText);
         return NextResponse.json({ error: "Failed to parse trip plan from AI response. The AI may have returned an invalid format. Check server logs for raw response." }, { status: 500 });
     }
 
-    const pdfId = uuidv4();
-    const tempDir = path.join(process.cwd(), "public", "temp");
-    const pdfPath = path.join(tempDir, `${pdfId}.pdf`);
-    const pdfUrl = `/temp/${pdfId}.pdf`;
-
-    await fs.mkdir(tempDir, { recursive: true });
-
+    // Generate PDF in memory instead of writing to disk
     const pdfDoc = await PDFDocument.create();
     let page = pdfDoc.addPage();
     const { width, height } = page.getSize();
@@ -223,12 +240,20 @@ export async function POST(req: NextRequest) {
     y = drawText(tripPlan.estimatedCost, font, 12, 60, y);
 
     const pdfBytes = await pdfDoc.save();
-    await fs.writeFile(pdfPath, pdfBytes);
+    
+    // Generate a unique ID for the PDF
+    const pdfId = uuidv4();
+    // Create a URL for the PDF (this will be stored in the database)
+    const pdfUrl = `/api/trips/${pdfId}/pdf`;
 
+    // Save the trip with the PDF URL and budget information
     const newTrip = new Trip({
         ...tripPlan,
+        budget,
+        customBudgetAmount: budget === 'custom' ? customBudgetAmount : undefined,
         createdBy: user._id, 
         pdfUrl: pdfUrl,
+        pdfData: Buffer.from(pdfBytes), // Convert Uint8Array to Buffer
     });
     
     await newTrip.save();

@@ -96,6 +96,8 @@ export interface TripPlan {
   restaurantsOnTheWay: RestaurantSuggestion[];
   fuelStopsOnTheWay: FuelStop[];
   estimatedCost: string;
+  budget?: 'low' | 'medium' | 'high' | 'custom';
+  customBudgetAmount?: number;
 }
 
 
@@ -103,6 +105,7 @@ export interface ITripDocument extends Document, TripPlan {
   _id: Types.ObjectId; 
   createdBy: Types.ObjectId; 
   pdfUrl: string;
+  pdfData?: Buffer; // Added field to match the Trip model
   createdAt: Date; 
   updatedAt: Date; 
 }

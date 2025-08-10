@@ -21,6 +21,7 @@ import {
   Calendar,
   ArrowLeft,
   Plus,
+  Trash2,
 } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
 import LoadingSpinner from "@/components/loading-spinner";
@@ -29,6 +30,16 @@ import { toast } from "sonner";
 import Link from "next/link";
 import AddMemberDialog from "@/components/add-member-dialog";
 import AddExpenseDialog from "@/components/add-expense-dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface User {
   _id: string;
@@ -82,6 +93,11 @@ export default function GroupDetails() {
   const [loading, setLoading] = useState(true);
   const [showAddMemberDialog, setShowAddMemberDialog] = useState(false);
   const [showAddExpenseDialog, setShowAddExpenseDialog] = useState(false);
+  const [memberToDelete, setMemberToDelete] = useState<string | null>(null);
+  const [expenseToDelete, setExpenseToDelete] = useState<string | null>(null);
+  const [showDeleteMemberConfirm, setShowDeleteMemberConfirm] = useState(false);
+  const [showDeleteExpenseConfirm, setShowDeleteExpenseConfirm] =
+    useState(false);
 
   useEffect(() => {
     if (status === "loading") return;
@@ -112,6 +128,76 @@ export default function GroupDetails() {
 
     fetchGroupDetails();
   }, [groupId, status]);
+
+  const handleDeleteMember = async (memberId: string) => {
+    try {
+      const response = await fetch(
+        `/api/groups/${groupId}/members/${memberId}`,
+        {
+          method: "DELETE",
+        }
+      );
+
+      if (response.ok) {
+        toast.success("Member removed successfully");
+        // Refresh the group data
+        const updatedResponse = await fetch(`/api/groups/${groupId}`);
+        if (updatedResponse.ok) {
+          const data = await updatedResponse.json();
+          setGroup(data);
+        }
+      } else {
+        const data = await response.json();
+        // Check for the specific error message with hasExpenses flag
+        if (response.status === 400 && data.hasExpenses) {
+          toast.error(
+            "This member has expenses in the group. Please delete their expenses first.",
+            {
+              duration: 5000,
+            }
+          );
+        } else {
+          toast.error(data.message || "Failed to remove member");
+        }
+      }
+    } catch (error) {
+      console.error("Error removing member:", error);
+      toast.error("Something went wrong while removing the member");
+    } finally {
+      setMemberToDelete(null);
+      setShowDeleteMemberConfirm(false);
+    }
+  };
+
+  const handleDeleteExpense = async (expenseId: string) => {
+    try {
+      const response = await fetch(
+        `/api/groups/${groupId}/expenses/${expenseId}`,
+        {
+          method: "DELETE",
+        }
+      );
+
+      if (response.ok) {
+        toast.success("Expense deleted successfully");
+        // Refresh the group data
+        const updatedResponse = await fetch(`/api/groups/${groupId}`);
+        if (updatedResponse.ok) {
+          const data = await updatedResponse.json();
+          setGroup(data);
+        }
+      } else {
+        const data = await response.json();
+        toast.error(data.message || "Failed to delete expense");
+      }
+    } catch (error) {
+      console.error("Error deleting expense:", error);
+      toast.error("Something went wrong while deleting the expense");
+    } finally {
+      setExpenseToDelete(null);
+      setShowDeleteExpenseConfirm(false);
+    }
+  };
 
   const handleAddMember = async () => {
     setShowAddMemberDialog(true);
@@ -314,6 +400,18 @@ export default function GroupDetails() {
                         >
                           {formatCurrency(member.amount)}
                         </Badge>
+                        {/* Add delete button */}
+                        {group.createdBy._id === session?.user?.id && (
+                          <button
+                            className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800"
+                            onClick={() => {
+                              setMemberToDelete(member.user._id);
+                              setShowDeleteMemberConfirm(true);
+                            }}
+                          >
+                            <Trash2 className="h-4 w-4 text-red-500" />
+                          </button>
+                        )}
                       </div>
                     </div>
                   ))}
@@ -343,12 +441,26 @@ export default function GroupDetails() {
                               {new Date(expense.createdAt).toLocaleDateString()}
                             </p>
                           </div>
-                          <Badge
-                            variant="outline"
-                            className="text-sm font-semibold"
-                          >
-                            {formatCurrency(expense.amount)}
-                          </Badge>
+                          <div>
+                            <Badge
+                              variant="outline"
+                              className="text-sm font-semibold"
+                            >
+                              {formatCurrency(expense.amount)}
+                            </Badge>
+                            {/* Add delete button */}
+                            {group.createdBy._id === session?.user?.id && (
+                              <button
+                                className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800"
+                                onClick={() => {
+                                  setExpenseToDelete(expense._id);
+                                  setShowDeleteExpenseConfirm(true);
+                                }}
+                              >
+                                <Trash2 className="h-4 w-4 text-red-500" />
+                              </button>
+                            )}
+                          </div>
                         </div>
                       </div>
                     ))}
@@ -442,6 +554,58 @@ export default function GroupDetails() {
           </TabsContent>
         </Tabs>
       </main>
+
+      <AlertDialog
+        open={showDeleteMemberConfirm}
+        onOpenChange={setShowDeleteMemberConfirm}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Remove Member?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will remove the member from this group. Their expense history
+              will remain.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() =>
+                memberToDelete && handleDeleteMember(memberToDelete)
+              }
+              className="bg-red-500 hover:bg-red-600"
+            >
+              Remove
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog
+        open={showDeleteExpenseConfirm}
+        onOpenChange={setShowDeleteExpenseConfirm}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Expense?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently delete this expense and update all balances.
+              This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() =>
+                expenseToDelete && handleDeleteExpense(expenseToDelete)
+              }
+              className="bg-red-500 hover:bg-red-600"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {showAddMemberDialog && (
         <AddMemberDialog

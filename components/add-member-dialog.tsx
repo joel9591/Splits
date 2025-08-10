@@ -59,7 +59,8 @@ export default function AddMemberDialog({
       const data = await res.json();
 
       if (res.ok) {
-        toast.success("Member added successfully!");
+        // Remove this toast since the parent component will show it
+        // toast.success("Member added successfully!");
         onMemberAdded();
         onOpenChange(false);
         setForm({ name: "", phone: "", email: "", upiId: "" });

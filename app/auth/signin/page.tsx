@@ -46,7 +46,7 @@ export default function SignIn() {
       });
 
       if (result?.ok) {
-        toast.success("Signed in successfully!");
+        toast.success("Signed in successfully! Please wait...");
         router.refresh();
         router.push("/dashboard");
       } else {
@@ -77,7 +77,7 @@ export default function SignIn() {
       const result = await signIn("google", {
         callbackUrl: "/dashboard",
       });
-      toast.success("Signed in successfully!");
+      toast.success("Signed in successfully! Please wait...");
       setIsLoading(false);
       if (result?.error) {
         toast.error(`Google sign-in failed: ${result.error}`, {

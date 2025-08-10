@@ -40,6 +40,10 @@ interface TripFormProps {
   setEndLocation: (value: string) => void;
   tripType: string;
   setTripType: (value: string) => void;
+  budget: string;
+  setBudget: (value: string) => void;
+  customBudgetAmount: number | "";
+  setCustomBudgetAmount: (value: number | "") => void;
   isLoading: boolean;
   handleSubmit: (e: React.FormEvent) => void;
 }
@@ -60,12 +64,16 @@ export default function TripForm(props: TripFormProps) {
     setEndLocation,
     tripType,
     setTripType,
+    budget,
+    setBudget,
+    customBudgetAmount,
+    setCustomBudgetAmount,
     isLoading,
     handleSubmit,
   } = props;
 
   return (
-    <Card className="mb-12 shadow-xl rounded-lg border border-gray-200 dark:border-gray-700">
+    <Card className="mb-8 shadow-xl rounded-lg border border-gray-200 dark:border-gray-700">
       <CardHeader className="bg-gradient-to-r from-indigo-500 to-purple-600 p-6 rounded-t-lg">
         <CardTitle className="text-white text-2xl font-bold text-center">
           Craft Your Perfect Journey
@@ -234,12 +242,55 @@ export default function TripForm(props: TripFormProps) {
             </div>
           </div>
 
+          {/* Add budget selection */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <label
+                htmlFor="budget"
+                className="text-sm font-medium text-gray-700 dark:text-gray-300"
+              >
+                Trip Budget
+              </label>
+              <Select value={budget} onValueChange={setBudget}>
+                <SelectTrigger id="budget">
+                  <SelectValue placeholder="Select budget range" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="low">Low Budget</SelectItem>
+                  <SelectItem value="medium">Medium Budget</SelectItem>
+                  <SelectItem value="high">High Budget</SelectItem>
+                  <SelectItem value="custom">Custom Budget</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            {budget === "custom" && (
+              <div className="space-y-2">
+                <label
+                  htmlFor="customBudgetAmount"
+                  className="text-sm font-medium text-gray-700 dark:text-gray-300"
+                >
+                  Custom Budget Amount (₹)
+                </label>
+                <Input
+                  id="customBudgetAmount"
+                  type="number"
+                  value={customBudgetAmount}
+                  placeholder="Enter your budget amount"
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    setCustomBudgetAmount(value === "" ? "" : parseInt(value));
+                  }}
+                />
+              </div>
+            )}
+          </div>
+          
           <Button
             type="submit"
             className="
-    relative bg-blue-800 lg:bg-blue-800
-    overflow-hidden w-full lg:w-full md:px-8 mt-4 text-white font-bold py-3 px-6 rounded-xl transition-all duration-300 ease-in-out focus:outline-none focus:ring-4 focus:ring-purple-700 group animated-button md:w-full
-  "
+              relative bg-blue-800 lg:bg-blue-800
+              overflow-hidden w-full lg:w-full md:px-8 mt-4 text-white font-bold py-3 px-6 rounded-xl transition-all duration-300 ease-in-out focus:outline-none focus:ring-4 focus:ring-purple-700 group animated-button md:w-full"
             disabled={isLoading}
           >
             {isLoading ? (

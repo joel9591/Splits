@@ -15,7 +15,7 @@ interface TripResultsProps {
 
 export default function TripResults({ tripPlan, members, downloadPdf, pdfId }: TripResultsProps) {
   return (
-    <Card className="mt-12 shadow-xl rounded-lg border-2 border-indigo-400 dark:border-indigo-600 animate-fade-in">
+    <Card className="shadow-xl rounded-lg border-2 border-indigo-400 dark:border-indigo-600 animate-fade-in">
       <CardHeader className="bg-indigo-50 dark:bg-indigo-900/50 p-6 rounded-t-lg">
         <CardTitle className="text-indigo-800 dark:text-indigo-200 text-3xl font-bold">{tripPlan.tripTitle}</CardTitle>
         <CardDescription className="text-indigo-600 dark:text-indigo-300 mt-1 text-lg">Your personalized itinerary is ready!</CardDescription>

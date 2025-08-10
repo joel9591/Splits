@@ -66,6 +66,19 @@ interface Expense {
   createdAt: string;
 }
 
+// Add this import
+import { Trash2, AlertCircle } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+
 export default function Dashboard() {
   console.log("this is dashboard page");
   const { data: session, status } = useSession();
@@ -84,6 +97,8 @@ export default function Dashboard() {
   const [showAddMember, setShowAddMember] = useState(false);
   const [showAddExpense, setShowAddExpense] = useState(false);
   const [showAiTripPlanner, setShowAiTripPlanner] = useState(false);
+  const [groupToDelete, setGroupToDelete] = useState<string | null>(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   useEffect(() => {
     if (status === "loading") {
@@ -95,6 +110,27 @@ export default function Dashboard() {
     }
   }, [status]);
 
+  const handleDeleteGroup = async (groupId: string) => {
+    try {
+      const response = await fetch(`/api/groups/${groupId}`, {
+        method: "DELETE",
+      });
+
+      if (response.ok) {
+        toast.success("Group deleted successfully");
+        fetchDashboardData(); // Refresh the data
+      } else {
+        const data = await response.json();
+        toast.error(data.message || "Failed to delete group");
+      }
+    } catch (error) {
+      console.error("Error deleting group:", error);
+      toast.error("Something went wrong while deleting the group");
+    } finally {
+      setGroupToDelete(null);
+      setShowDeleteConfirm(false);
+    }
+  };
 
   const fetchDashboardData = async () => {
     setIsLoading(true);
@@ -296,6 +332,17 @@ export default function Dashboard() {
                         New group
                       </span>
                     )}
+                    <div
+                      className="absolute top-2 right-2 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer z-10"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setGroupToDelete(group._id);
+                        setShowDeleteConfirm(true);
+                      }}
+                    >
+                      <Trash2 className="h-5 w-5 text-red-500" />
+                    </div>
 
                     <CardHeader className="items-center p-0">
                       <CardTitle className="text-xl sm:text-2xl mb-1">
@@ -433,6 +480,32 @@ export default function Dashboard() {
                 </Link>
               );
             })}
+            {/* Add confirmation dialog */}
+            <AlertDialog
+              open={showDeleteConfirm}
+              onOpenChange={setShowDeleteConfirm}
+            >
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This will permanently delete the group and all its expenses.
+                    This action cannot be undone.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={() =>
+                      groupToDelete && handleDeleteGroup(groupToDelete)
+                    }
+                    className="bg-red-500 hover:bg-red-600"
+                  >
+                    Delete
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </div>
         ) : !isLoading && groups.length === 0 ? (
           <Card className="border-none shadow-lg">
@@ -483,5 +556,5 @@ export default function Dashboard() {
         )}
       </div>
     </div>
-  );
+  )
 }

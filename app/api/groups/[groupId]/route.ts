@@ -125,3 +125,40 @@ export async function GET(
     return NextResponse.json({ message: 'Internal server error' }, { status: 500 });
   }
 }
+
+// Add DELETE method to delete a group
+export async function DELETE(
+  req: NextRequest,
+  { params }: { params: { groupId: string } }
+) {
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.id) {
+      return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
+    }
+
+    await connectDB();
+
+    const group = await Group.findById(params.groupId);
+
+    if (!group) {
+      return NextResponse.json({ message: 'Group not found' }, { status: 404 });
+    }
+
+    // Only the creator can delete the group
+    if (group.createdBy.toString() !== session.user.id) {
+      return NextResponse.json({ message: 'Not authorized to delete this group' }, { status: 403 });
+    }
+
+    // Delete all expenses associated with this group
+    await Expense.deleteMany({ group: params.groupId });
+    
+    // Delete the group
+    await Group.findByIdAndDelete(params.groupId);
+
+    return NextResponse.json({ message: 'Group deleted successfully' });
+  } catch (error) {
+    console.error('Delete group error:', error);
+    return NextResponse.json({ message: 'Internal server error' }, { status: 500 });
+  }
+}
