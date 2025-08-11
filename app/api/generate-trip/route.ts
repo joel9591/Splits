@@ -10,7 +10,7 @@ import { v4 as uuidv4 } from "uuid";
 import connectDB from '@/lib/mongodb';
 import Trip from "@/models/Trip";
 import User from "@/models/User";
-import { TripPlan, ITripDocument, ApiResponse } from "@/lib/types"; 
+import { TripPlan, ITripDocument, ApiResponse, PlaceToVisit } from "@/lib/types"; 
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
@@ -129,21 +129,19 @@ export async function POST(req: NextRequest) {
         
         tripPlan = JSON.parse(cleanedJsonString);
 
-        if (tripPlan.estimatedCost) {
-            tripPlan.estimatedCost = tripPlan.estimatedCost.replace(/₹/g, 'Rs. ');
-        }
-        tripPlan.hotelsOnTheWay = tripPlan.hotelsOnTheWay.map(hotel => ({
-            ...hotel,
-            price: hotel.price.replace(/₹/g, 'Rs. ')
-        }));
-
-        // Remove any photoUrl fields if they exist
         if (tripPlan.placesToVisit) {
-          tripPlan.placesToVisit = tripPlan.placesToVisit.map(place => {
-            const { photoUrl, ...rest } = place;
-            return rest;
-          });
-        }
+    tripPlan.placesToVisit = tripPlan.placesToVisit.map(place => {
+      // The `photoUrl` is not present, so we cast the rest of the object.
+      // This is a workaround since your Gemini prompt specifically omits it.
+      const cleanedPlace = {
+        name: place.name,
+        description: place.description,
+        link: place.link,
+        // photoUrl could be set to a default or null if needed
+      }
+      return cleanedPlace as PlaceToVisit; // Cast the object to the required type
+    });
+}
 
     } catch (parseError) {
         console.error("Failed to parse Gemini response:", parseError);

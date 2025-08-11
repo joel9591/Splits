@@ -27,9 +27,9 @@ export default function TripResults({ tripPlan, members, downloadPdf, pdfId }: T
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {tripPlan.placesToVisit.map((place, index) => (
               <Card key={index} className="overflow-hidden group">
-                <div className="relative h-48 w-full">
+                {/* <div className="relative h-48 w-full">
                   <Image src={place.photoUrl || "/placeholder-image.jpg"} alt={place.name} layout="fill" objectFit="cover" className="transition-transform duration-300 group-hover:scale-105"/>
-                </div>
+                </div> */}
                 <CardHeader><CardTitle>{place.name}</CardTitle></CardHeader>
                 <CardContent>
                   <p className="text-gray-600 dark:text-gray-400 mb-4">{place.description}</p>

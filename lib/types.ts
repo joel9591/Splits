@@ -70,7 +70,7 @@ export interface PlaceToVisit {
   name: string;
   description: string;
   link: string;
-  photoUrl: string;
+  photoUrl?: string;
 }
 
 export interface HotelOption {

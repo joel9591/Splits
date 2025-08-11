@@ -12,9 +12,9 @@ export async function GET(req: NextRequest, { params }: { params: { tripId: stri
       return NextResponse.json({ error: "Unauthorized. Please log in." }, { status: 401 });
     }
 
-    // Find the trip by ID
-    const trip = await Trip.findById(params.tripId);
-    
+    // Find the trip using the pdfId field, not the ObjectId
+    const trip = await Trip.findOne({ pdfId: params.tripId });
+
     if (!trip) {
       return NextResponse.json({ error: "Trip not found" }, { status: 404 });
     }

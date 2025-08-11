@@ -541,6 +541,7 @@ const culturalJourneyTripPlan = {
   ],
 };
 
+
 export default function PresetTrips() {
   return (
     <div className="mt-12 animate-fade-in">
