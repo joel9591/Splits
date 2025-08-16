@@ -13,22 +13,27 @@ export async function GET(req: NextRequest) {
   const filePath = path.join(process.cwd(), "public", "temp", `${id}.pdf`);
 
   try {
-    await fs.access(filePath); 
+    await fs.access(filePath);
     const fileBuffer = await fs.readFile(filePath);
+
+    // This is the key change to ensure type compatibility.
+    // We create a new Uint8Array from the buffer, which gives us a plain ArrayBuffer.
+    const fileArrayBuffer = new Uint8Array(fileBuffer).buffer;
 
     await fs.unlink(filePath).catch(err => console.error(`Failed to delete temp file: ${filePath}`, err));
     
     const headers = new Headers();
     headers.set('Content-Type', 'application/pdf');
     headers.set('Content-Disposition', `attachment; filename="trip-plan.pdf"`);
-    headers.set('Content-Length', fileBuffer.byteLength.toString());
+    headers.set('Content-Length', fileArrayBuffer.byteLength.toString());
 
-    return new NextResponse(fileBuffer, { status: 200, headers });
+    // Use the new ArrayBuffer to create the Blob.
+    return new NextResponse(new Blob([fileArrayBuffer]), { status: 200, headers });
 
   } catch (error) {
     console.error(`PDF download error for ID ${id}:`, error);
     if (error instanceof Error && (error as NodeJS.ErrnoException).code === 'ENOENT') {
-        return new NextResponse("PDF not found.", { status: 404 });
+      return new NextResponse("PDF not found.", { status: 404 });
     }
     return new NextResponse("An error occurred while trying to download the PDF.", { status: 500 });
   }

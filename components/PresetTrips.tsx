@@ -8,6 +8,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { useRouter } from 'next/navigation';
 
 const presetTripsData = [
   {
@@ -542,7 +543,34 @@ const culturalJourneyTripPlan = {
 };
 
 
+
+
 export default function PresetTrips() {
+  const router = useRouter();
+
+  const getTripPlanData = (tripTitle: string) => {
+    switch(tripTitle) {
+      case "Beach Getaway":
+        return beachGetawayTripPlan;
+      case "Mountain Adventure":
+        return mountainAdventureTripPlan;
+      case "City Exploration":
+        return cityExplorationTripPlan;
+      case "Cultural Journey":
+        return culturalJourneyTripPlan;
+      default:
+        return null;
+    }
+  };
+
+  const handleViewDetails = (tripTitle: string) => {
+    // Create a URL-friendly slug from the trip title
+    const slug = tripTitle.toLowerCase().replace(/\s+/g, '-');
+    
+    // Navigate to the trip details page with the slug as a parameter
+    router.push(`/preset-trips/${slug}`);
+  };
+
   return (
     <div className="mt-12 animate-fade-in">
       <h2 className="text-3xl font-bold text-center mb-8 text-gray-800 dark:text-gray-100">
@@ -570,6 +598,7 @@ export default function PresetTrips() {
               <Button
                 variant="outline"
                 className="w-full border-indigo-500 text-indigo-600 hover:bg-gray-700 hover:text-indigo-200 transition-colors duration-200"
+                onClick={() => handleViewDetails(trip.title)}
               >
                 View Details
               </Button>

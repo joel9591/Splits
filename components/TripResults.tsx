@@ -46,7 +46,12 @@ export default function TripResults({ tripPlan, members, downloadPdf, pdfId }: T
               <h3 className="text-xl font-semibold mb-3 flex items-center"><Hotel className="mr-2 h-5 w-5 text-blue-600" /> Hotels</h3>
               <ul className="space-y-2">
                 {tripPlan.hotelsOnTheWay.map((hotel, index) => (
-                  <li key={index} className="p-3 bg-gray-50 dark:bg-gray-800 rounded-md"><strong>{hotel.name}</strong> ({hotel.location}) - <span className="font-mono">{hotel.price}</span></li>
+                  <li key={index} className="p-3 bg-gray-50 dark:bg-gray-800 rounded-md flex justify-between items-center">
+                    <div>
+                      <strong>{hotel.name}</strong> ({hotel.location}) - <span className="font-mono">{hotel.price}</span>
+                    </div>
+                    <MapPin className="h-5 w-5 text-blue-500 flex-shrink-0" />
+                  </li>
                 ))}
               </ul>
             </div>
@@ -54,7 +59,12 @@ export default function TripResults({ tripPlan, members, downloadPdf, pdfId }: T
               <h3 className="text-xl font-semibold mb-3 flex items-center"><UtensilsCrossed className="mr-2 h-5 w-5 text-red-600" /> Restaurants</h3>
               <ul className="space-y-2">
                 {tripPlan.restaurantsOnTheWay.map((item, index) => (
-                  <li key={index} className="p-3 bg-gray-50 dark:bg-gray-800 rounded-md"><strong>{item.name}</strong> - {item.location}</li>
+                  <li key={index} className="p-3 bg-gray-50 dark:bg-gray-800 rounded-md flex justify-between items-center">
+                    <div>
+                      <strong>{item.name}</strong> - {item.location}
+                    </div>
+                    <MapPin className="h-5 w-5 text-red-500 flex-shrink-0" />
+                  </li>
                 ))}
               </ul>
             </div>
@@ -62,7 +72,12 @@ export default function TripResults({ tripPlan, members, downloadPdf, pdfId }: T
               <h3 className="text-xl font-semibold mb-3 flex items-center"><Fuel className="mr-2 h-5 w-5 text-yellow-600" /> Fuel Stops</h3>
               <ul className="space-y-2">
                 {tripPlan.fuelStopsOnTheWay.map((item, index) => (
-                  <li key={index} className="p-3 bg-gray-50 dark:bg-gray-800 rounded-md"><strong>{item.name}</strong> - {item.location}</li>
+                  <li key={index} className="p-3 bg-gray-50 dark:bg-gray-800 rounded-md flex justify-between items-center">
+                    <div>
+                      <strong>{item.name}</strong> - {item.location}
+                    </div>
+                    <MapPin className="h-5 w-5 text-yellow-500 flex-shrink-0" />
+                  </li>
                 ))}
               </ul>
             </div>

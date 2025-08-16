@@ -12,8 +12,13 @@ export async function GET(req: NextRequest, { params }: { params: { tripId: stri
       return NextResponse.json({ error: "Unauthorized. Please log in." }, { status: 401 });
     }
 
-    // Find the trip using the pdfId field, not the ObjectId
-    const trip = await Trip.findOne({ pdfId: params.tripId });
+    // First try to find by _id
+    let trip = await Trip.findById(params.tripId);
+    
+    // If not found by _id, try to find by pdfId field
+    if (!trip) {
+      trip = await Trip.findOne({ pdfUrl: { $regex: params.tripId } });
+    }
 
     if (!trip) {
       return NextResponse.json({ error: "Trip not found" }, { status: 404 });
@@ -30,12 +35,15 @@ export async function GET(req: NextRequest, { params }: { params: { tripId: stri
     }
 
     // Return the PDF data with appropriate headers
-    return new NextResponse(trip.pdfData, {
+    const pdfBuffer = Buffer.from(trip.pdfData);
+    const response = new NextResponse(pdfBuffer, {
       headers: {
         'Content-Type': 'application/pdf',
         'Content-Disposition': `inline; filename="${trip.tripTitle.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.pdf"`,
       },
     });
+    
+    return response;
   } catch (error) {
     console.error("Error retrieving PDF:", error);
     return NextResponse.json({ error: "Failed to retrieve PDF" }, { status: 500 });

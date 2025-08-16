@@ -3,6 +3,13 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import connectDB from '@/lib/mongodb';
 import Trip from "@/models/Trip";
+import { Document } from 'mongoose';
+
+interface PlaceDocument extends Document {
+  photoUrl?: string;
+  toObject(): any;
+  [key: string]: any;
+}
 
 export async function GET(req: NextRequest) {
   await connectDB();
@@ -21,7 +28,7 @@ export async function GET(req: NextRequest) {
     const transformedTrips = trips.map(trip => ({
       _id: trip._id.toString(),
       tripTitle: trip.tripTitle,
-      placesToVisit: trip.placesToVisit.map(place => {
+      placesToVisit: trip.placesToVisit.map((place: PlaceDocument) => {
         const { photoUrl, ...rest } = place.toObject();
         return rest;
       }),
