@@ -27,9 +27,6 @@ export default function TripResults({ tripPlan, members, downloadPdf, pdfId }: T
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {tripPlan.placesToVisit.map((place, index) => (
               <Card key={index} className="overflow-hidden group">
-                {/* <div className="relative h-48 w-full">
-                  <Image src={place.photoUrl || "/placeholder-image.jpg"} alt={place.name} layout="fill" objectFit="cover" className="transition-transform duration-300 group-hover:scale-105"/>
-                </div> */}
                 <CardHeader><CardTitle>{place.name}</CardTitle></CardHeader>
                 <CardContent>
                   <p className="text-gray-600 dark:text-gray-400 mb-4">{place.description}</p>
@@ -50,7 +47,14 @@ export default function TripResults({ tripPlan, members, downloadPdf, pdfId }: T
                     <div>
                       <strong>{hotel.name}</strong> ({hotel.location}) - <span className="font-mono">{hotel.price}</span>
                     </div>
-                    <MapPin className="h-5 w-5 text-blue-500 flex-shrink-0" />
+                    <a
+                      href={hotel.map_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex-shrink-0"
+                    >
+                      <MapPin className="h-5 w-5 text-blue-500" />
+                    </a>
                   </li>
                 ))}
               </ul>
@@ -63,7 +67,14 @@ export default function TripResults({ tripPlan, members, downloadPdf, pdfId }: T
                     <div>
                       <strong>{item.name}</strong> - {item.location}
                     </div>
-                    <MapPin className="h-5 w-5 text-red-500 flex-shrink-0" />
+                    <a
+                      href={item.map_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex-shrink-0"
+                    >
+                      <MapPin className="h-5 w-5 text-red-500" />
+                    </a>
                   </li>
                 ))}
               </ul>
@@ -76,7 +87,14 @@ export default function TripResults({ tripPlan, members, downloadPdf, pdfId }: T
                     <div>
                       <strong>{item.name}</strong> - {item.location}
                     </div>
-                    <MapPin className="h-5 w-5 text-yellow-500 flex-shrink-0" />
+                    <a
+                      href={item.map_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex-shrink-0"
+                    >
+                      <MapPin className="h-5 w-5 text-yellow-500" />
+                    </a>
                   </li>
                 ))}
               </ul>

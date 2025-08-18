@@ -22,7 +22,6 @@ export default function AuthError() {
   useEffect(() => {
     const error = searchParams.get("error");
 
-    // Map error codes to user-friendly messages
     if (error === "Configuration") {
       setErrorMessage("There is a problem with the server configuration.");
     } else if (error === "AccessDenied") {

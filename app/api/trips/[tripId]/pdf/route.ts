@@ -12,10 +12,17 @@ export async function GET(req: NextRequest, { params }: { params: { tripId: stri
       return NextResponse.json({ error: "Unauthorized. Please log in." }, { status: 401 });
     }
 
-    // First try to find by _id
-    let trip = await Trip.findById(params.tripId);
+    // Check if the ID is a valid MongoDB ObjectId
+    const isValidObjectId = /^[0-9a-fA-F]{24}$/.test(params.tripId);
     
-    // If not found by _id, try to find by pdfId field
+    let trip;
+    
+    if (isValidObjectId) {
+      // If it's a valid ObjectId, try to find by _id
+      trip = await Trip.findById(params.tripId);
+    }
+    
+    // If not found by _id or not a valid ObjectId, try to find by pdfUrl
     if (!trip) {
       trip = await Trip.findOne({ pdfUrl: { $regex: params.tripId } });
     }
@@ -36,7 +43,7 @@ export async function GET(req: NextRequest, { params }: { params: { tripId: stri
 
     // Return the PDF data with appropriate headers
     const pdfBuffer = Buffer.from(trip.pdfData);
-    const response = new NextResponse(pdfBuffer, {
+    const response = new NextResponse(new Uint8Array(pdfBuffer), {
       headers: {
         'Content-Type': 'application/pdf',
         'Content-Disposition': `inline; filename="${trip.tripTitle.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.pdf"`,

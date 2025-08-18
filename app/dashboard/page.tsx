@@ -22,6 +22,17 @@ import AddMemberDialog from "@/components/add-member-dialog";
 import AddExpenseDialog from "@/components/add-expense-dialog";
 import { AiTripPlannerButton } from "@/components/animated-login-button";
 import AiTripPlanner from "@/components/ai-trip-planner";
+import { Trash2, AlertCircle } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface DashboardStats {
   totalGroups: number;
@@ -66,18 +77,7 @@ interface Expense {
   createdAt: string;
 }
 
-// Add this import
-import { Trash2, AlertCircle } from "lucide-react";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+
 
 export default function Dashboard() {
   console.log("this is dashboard page");
@@ -118,7 +118,7 @@ export default function Dashboard() {
 
       if (response.ok) {
         toast.success("Group deleted successfully");
-        fetchDashboardData(); // Refresh the data
+        fetchDashboardData(); 
       } else {
         const data = await response.json();
         toast.error(data.message || "Failed to delete group");

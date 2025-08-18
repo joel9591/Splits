@@ -46,7 +46,10 @@ export default function SignIn() {
       });
 
       if (result?.ok) {
-        toast.success("Signed in successfully! Please wait...");
+        toast.success("Signed in successfully! Please wait...", {
+          icon: "✅",
+          style: { color: "#16a34a" },
+        });
         router.refresh();
         router.push("/dashboard");
       } else {
@@ -77,6 +80,10 @@ export default function SignIn() {
       const result = await signIn("google", {
         callbackUrl: "/dashboard",
       });
+      toast.success("Signed in successfully! Please wait...", {
+        icon: "✅",
+        style: { color: "#16a34a" },
+      });
 
       setIsLoading(false);
       if (result?.error) {
@@ -87,10 +94,6 @@ export default function SignIn() {
           },
         });
         setIsLoading(false);
-        toast.success("Signed in successfully! Please wait...", {
-          icon: "✅",
-          style: { color: "#16a34a" },
-        });
       }
     } catch (error) {
       console.error("Google sign-in error:", error);

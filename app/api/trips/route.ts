@@ -19,12 +19,10 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized. Please log in." }, { status: 401 });
     }
 
-    // Get trips for the current user
     const trips = await Trip.find({ createdBy: session.user.id })
       .sort({ createdAt: -1 })
-      .select('-pdfData'); // Exclude the PDF data to reduce response size
+      .select('-pdfData');
 
-    // Transform the trips for client-side consumption
     const transformedTrips = trips.map(trip => ({
       _id: trip._id.toString(),
       tripTitle: trip.tripTitle,

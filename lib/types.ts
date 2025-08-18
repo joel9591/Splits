@@ -77,16 +77,19 @@ export interface HotelOption {
   name: string;
   location: string;
   price: string;
+  map_url: string;
 }
 
 export interface RestaurantSuggestion {
   name: string;
   location: string;
+  map_url: string;
 }
 
 export interface FuelStop {
   name: string;
   location: string;
+  map_url: string;
 }
 
 export interface TripPlan { 

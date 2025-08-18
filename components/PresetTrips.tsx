@@ -8,7 +8,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { useRouter } from 'next/navigation';
+import { useRouter } from "next/navigation";
 
 const presetTripsData = [
   {
@@ -133,19 +133,22 @@ const beachGetawayTripPlan = {
       name: "Baga Beach",
       description:
         "Famous for its vibrant nightlife, beach shacks, and water sports.",
-      map_url: "https://maps.app.goo.gl/PkkBvVFn6qMFxqVz5",
+      map_url:
+        "https://www.google.com/maps/place/Baga+Beach/@15.557323,73.7455182,16z/data=!4m10!1m2!2m1!1sbaga+beach!3m6!1s0x3bbfea1cd8a1deff:0xba7066c0ee35c1e0!8m2!3d15.5552787!4d73.7517307!15sCgpiYWdhIGJlYWNokgEFYmVhY2jgAQA!16s%2Fg%2F11c53dbgcr?entry=ttu&g_ep=EgoyMDI1MDgxMy4wIKXMDSoASAFQAw%3D%3D",
     },
     {
       name: "Calangute Beach",
       description:
         "The largest beach in North Goa, known as the 'Queen of Beaches'.",
-      map_url: "https://maps.app.goo.gl/V6Db7vXW7KEDXerP9",
+      map_url:
+        "https://www.google.com/maps/place/Calangute+Beach/@15.5468346,73.7330899,14z/data=!3m1!4b1!4m6!3m5!1s0x3bbfea0148f4ed2b:0xcb592fad5d257d17!8m2!3d15.549441!4d73.7534857!16s%2Fg%2F1tfkzn7s?entry=ttu&g_ep=EgoyMDI1MDgxMy4wIKXMDSoASAFQAw%3D%3D",
     },
     {
       name: "Fort Aguada",
       description:
         "A well-preserved 17th-century Portuguese fort with a lighthouse offering scenic views of the sea.",
-      map_url: "https://maps.app.goo.gl/vvUDgJAPU2cAAonX6",
+      map_url:
+        "https://www.google.com/maps/place/Fort+Aguada/@15.4922519,73.7711713,17z/data=!3m1!4b1!4m6!3m5!1s0x3bbfc175c68cbd6b:0xa3837630b3697b1c!8m2!3d15.4922519!4d73.7737462!16zL20vMDk0MDNx?entry=ttu&g_ep=EgoyMDI1MDgxMy4wIKXMDSoASAFQAw%3D%3D",
     },
     {
       name: "Dudhsagar Falls",
@@ -542,14 +545,11 @@ const culturalJourneyTripPlan = {
   ],
 };
 
-
-
-
 export default function PresetTrips() {
   const router = useRouter();
 
   const getTripPlanData = (tripTitle: string) => {
-    switch(tripTitle) {
+    switch (tripTitle) {
       case "Beach Getaway":
         return beachGetawayTripPlan;
       case "Mountain Adventure":
@@ -565,9 +565,7 @@ export default function PresetTrips() {
 
   const handleViewDetails = (tripTitle: string) => {
     // Create a URL-friendly slug from the trip title
-    const slug = tripTitle.toLowerCase().replace(/\s+/g, '-');
-    
-    // Navigate to the trip details page with the slug as a parameter
+    const slug = tripTitle.toLowerCase().replace(/\s+/g, "-");
     router.push(`/preset-trips/${slug}`);
   };
 

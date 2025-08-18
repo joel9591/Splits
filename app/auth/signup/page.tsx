@@ -93,6 +93,10 @@ export default function SignUp() {
         callbackUrl: "/dashboard",
         redirect: true,
       });
+      toast.success("Signed in with Google successfully! 🎉", {
+        icon: "✅",
+        style: { color: "#16a34a" },
+      });
 
       if (result?.error) {
         toast.error(`Google sign-in failed: ${result.error}`, {
@@ -102,10 +106,6 @@ export default function SignUp() {
           },
         });
         setIsLoading(false);
-        toast.success("Signed in with Google successfully! 🎉", {
-          icon: "✅",
-          style: { color: "#16a34a" },
-        });
       }
     } catch (error) {
       console.error("Google sign-in error:", error);

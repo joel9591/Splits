@@ -140,7 +140,6 @@ export default function GroupDetails() {
 
       if (response.ok) {
         toast.success("Member removed successfully");
-        // Refresh the group data
         const updatedResponse = await fetch(`/api/groups/${groupId}`);
         if (updatedResponse.ok) {
           const data = await updatedResponse.json();
@@ -148,7 +147,6 @@ export default function GroupDetails() {
         }
       } else {
         const data = await response.json();
-        // Check for the specific error message with hasExpenses flag
         if (response.status === 400 && data.hasExpenses) {
           toast.error(
             "This member has expenses in the group. Please delete their expenses first.",
@@ -180,7 +178,6 @@ export default function GroupDetails() {
 
       if (response.ok) {
         toast.success("Expense deleted successfully");
-        // Refresh the group data
         const updatedResponse = await fetch(`/api/groups/${groupId}`);
         if (updatedResponse.ok) {
           const data = await updatedResponse.json();
@@ -400,7 +397,6 @@ export default function GroupDetails() {
                         >
                           {formatCurrency(member.amount)}
                         </Badge>
-                        {/* Add delete button */}
                         {group.createdBy._id === session?.user?.id && (
                           <button
                             className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800"
@@ -448,7 +444,6 @@ export default function GroupDetails() {
                             >
                               {formatCurrency(expense.amount)}
                             </Badge>
-                            {/* Add delete button */}
                             {group.createdBy._id === session?.user?.id && (
                               <button
                                 className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800"
@@ -563,8 +558,7 @@ export default function GroupDetails() {
           <AlertDialogHeader>
             <AlertDialogTitle>Remove Member?</AlertDialogTitle>
             <AlertDialogDescription>
-              This will remove the member from this group. Their expense history
-              will remain.
+              You can't remove this member, if there name is included in expenses tab. 
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

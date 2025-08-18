@@ -12,7 +12,6 @@ export async function DELETE(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized. Please log in." }, { status: 401 });
     }
 
-    // Delete all trips for the current user
     await Trip.deleteMany({ createdBy: session.user.id });
 
     return NextResponse.json({ success: true });

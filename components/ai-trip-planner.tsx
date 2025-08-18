@@ -61,7 +61,8 @@ export default function AiTripPlanner() {
           endLocation,
           tripType,
           budget,
-          customBudgetAmount: budget === "custom" ? customBudgetAmount : undefined,
+          customBudgetAmount:
+            budget === "custom" ? customBudgetAmount : undefined,
         }),
       });
 
@@ -115,8 +116,8 @@ export default function AiTripPlanner() {
     <div className="container mx-auto px-4 py-2 max-w-7xl">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-2xl font-bold">AI Trip Planner</h2>
-        <Button 
-          onClick={() => setShowHistory(!showHistory)} 
+        <Button
+          onClick={() => setShowHistory(!showHistory)}
           variant="outline"
           className="flex items-center gap-2"
         >
@@ -158,7 +159,8 @@ export default function AiTripPlanner() {
               members={typeof members === "number" ? members : 0}
               downloadPdf={downloadPdf}
               pdfId={
-                generatedTrip.pdfUrl.split("/").pop()?.replace(".pdf", "") || null
+                generatedTrip.pdfUrl.split("/").pop()?.replace(".pdf", "") ||
+                null
               }
             />
           )}
